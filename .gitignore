@@ -1,0 +1,37 @@
+#####
+# Git Ignore for Projects in Xcode 8 on macOS
+# Christopher Kriens
+# Updated 03 April 2017
+
+# macOS Finder
+.DS_Store
+.DS_Store?
+.Trashes
+.Spotlight-V100
+*.swp
+*.lock
+
+# Project
+*.hmap
+*.ipa
+*.moved-aside
+
+# Build Directories
+DerivedData/
+Builds/
+build/
+
+# XCode User Data
+*.pbxuser
+xcuserdata/
+*.xcuserstate
+*.mode1v3
+*.mode2v3
+*.perspectivev3
+*.xcscmblueprint
+*.xccheckout
+!default.pbxuser
+!default.mode1v3
+!default.mode2v3
+!default.perspectivev3
+UserInterfaceState.xcuserstate
