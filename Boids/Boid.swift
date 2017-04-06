@@ -10,8 +10,9 @@ import SpriteKit
 
 class Boid: SKSpriteNode {
     let maximumSpeed: CGFloat = 2
-    let radius = 10.0
+    let radius: CGFloat = 10.0
     var velocity = CGPoint.zero
+    var rotationalVelocity: CGFloat = 0.0
     var rules = [Rule]()
     
     override init(texture: SKTexture?, color: UIColor, size: CGSize) {
@@ -21,8 +22,8 @@ class Boid: SKSpriteNode {
         self.position = CGPoint.zero
         self.zPosition = 2
         self.name = "boid"
-    
-        self.rules = [CenterOfMass(), Separation()]
+            
+        self.rules = [CenterOfMass(), Separation(), Alignment()]
     }
     
     
@@ -40,32 +41,52 @@ class Boid: SKSpriteNode {
     
     
     private func updatePosition(frame: CGRect) {
+        
+        self.velocity += self.rules.reduce(self.velocity, { velocity, rule in
+            return velocity + rule.velocity
+        })
+
+        applySpeedLimit()
+
+        let borderMargin = 100
+        let xMin: CGFloat = CGFloat(borderMargin)
+        let xMax: CGFloat = frame.size.width - CGFloat(borderMargin)
+        let yMin: CGFloat = CGFloat(borderMargin)
+        let yMax: CGFloat = frame.size.height - CGFloat(borderMargin)
+
+        let borderTurnResistance: CGFloat = maximumSpeed * (1/10)
+        if (self.position.x < xMin) {
+            self.velocity.x += borderTurnResistance
+        }
+        if (self.position.x > xMax) {
+            self.velocity.x -= borderTurnResistance
+        }
+        
+        if (self.position.y < yMin) {
+            self.velocity.y += borderTurnResistance
+        }
+        if (self.position.y > yMax) {
+            self.velocity.y -= borderTurnResistance
+        }
+
+        self.position += self.velocity
+        rotate()
+    }
+    
+    private func applySpeedLimit() {
         let vector = self.velocity.length
         if (vector > self.maximumSpeed) {
-            self.velocity = (self.velocity / vector) * self.maximumSpeed
+            let unitVector = self.velocity / vector
+            self.velocity = unitVector * self.maximumSpeed
         }
-        self.position += self.velocity
-        
-        // collision detection and inverting direction - ugly AF
-        if (self.position.x - CGFloat(self.radius) <= 0) {
-            self.position.x = CGFloat(self.radius)
-            self.velocity.x *= -1
-        }
-        if (self.position.x + CGFloat(self.radius) >= frame.width) {
-            self.position.x = frame.width - CGFloat(self.radius)
-            self.velocity.x *= -1
-        }
-        
-        if (self.position.y - CGFloat(self.radius) <= 0) {
-            self.position.y = CGFloat(self.radius)
-            self.velocity.y *= -1
-        }
-        if (self.position.y + CGFloat(self.radius) >= frame.height) {
-            self.position.y = frame.height - CGFloat(self.radius)
-            self.velocity.y *= -1
-        }
+    }
     
-        let radian = -atan2(Double(velocity.x), Double(velocity.y))
-        self.zRotation = CGFloat(radian)
+    private func rotate() {
+        let currentIdealDirection = CGFloat(-atan2(Double(velocity.x), Double(velocity.y)))
+        if (self.rotationalVelocity == 0.0) {
+           self.rotationalVelocity = currentIdealDirection
+        }
+        self.rotationalVelocity = ((currentIdealDirection/100 + self.rotationalVelocity) / 2)
+        self.zRotation = currentIdealDirection + CGFloat(GLKMathDegreesToRadians(90))
     }
 }

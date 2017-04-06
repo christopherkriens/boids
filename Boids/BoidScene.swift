@@ -10,7 +10,7 @@ import SpriteKit
 import GameplayKit
 
 class BoidScene: SKScene {
-    let numberOfBoids = 10
+    let numberOfBoids = 20
     var flock = [Boid]()
     
     override func didMove(to view: SKView) {        
@@ -24,7 +24,7 @@ class BoidScene: SKScene {
             let randomY = randomVertical.nextInt()
             
             boid.position = CGPoint(x: randomX, y: randomY)
-            boid.name = "boid_\(i)"
+            boid.name = "boid\(i)"
             
             self.flock.append(boid)
             addChild(boid)

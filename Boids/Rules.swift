@@ -5,7 +5,7 @@ import UIKit
  - All rules must conform to this basic protocol
  */
 protocol Rule {
-    var weight: CGFloat { get set }
+    var velocity: CGPoint { get }
     mutating func apply(toBoid boid:Boid, inFlock flock:[Boid])
 }
 
@@ -16,17 +16,19 @@ protocol Rule {
  - This rule applies a tendency to move the boid
  toward the averaged position of the entire flock
  */
-struct CenterOfMass: Rule {
-    var weight: CGFloat = 1.0
+class CenterOfMass: Rule {
     var factor: CGFloat = 300
+    var velocity: CGPoint = CGPoint.zero
     
-    mutating func apply(toBoid boid:Boid, inFlock flock:[Boid]) {
+    func apply(toBoid boid:Boid, inFlock flock:[Boid]) {
+        self.velocity = CGPoint.zero
+
         for flockBoid in flock {
             guard flockBoid != boid else { continue }
-            boid.velocity += flockBoid.position
+            self.velocity += flockBoid.position
         }
-        boid.velocity /= CGFloat(flock.count-1)
-        boid.velocity = (boid.velocity - boid.position) / factor
+        self.velocity /= CGFloat(flock.count-1)
+        self.velocity = (self.velocity - boid.position) / 100
     }
 }
 
@@ -37,18 +39,18 @@ struct CenterOfMass: Rule {
  - This rule applies a tendency to move away from 
  neighboring boids when they get too close together
  */
-struct Separation: Rule {
-    var weight: CGFloat = 1.0
-    
+class Separation: Rule {
+    var velocity: CGPoint = CGPoint.zero
     private let personalSpace: CGFloat = 25.0
 
-    mutating func apply(toBoid boid:Boid, inFlock flock:[Boid]) {
+    func apply(toBoid boid:Boid, inFlock flock:[Boid]) {
+        self.velocity = CGPoint.zero
+        
         for flockBoid in flock {
             guard flockBoid != boid else { continue }
             
             if boid.position.distance(from: flockBoid.position) < self.personalSpace {
-                boid.velocity -= flockBoid.position - boid.velocity
-                print("too close")
+                self.velocity -= (flockBoid.position - boid.position)/25
             }
         }
     }
@@ -60,15 +62,18 @@ struct Separation: Rule {
  - This rule applies a tendency for a boid to align its
  direction with the average direction of the entire flock
  */
-struct Alignment: Rule {
-    var weight: CGFloat = 1.0
+class Alignment: Rule {
+    var velocity: CGPoint = CGPoint.zero
     
-    mutating func apply(toBoid boid:Boid, inFlock flock:[Boid]) {
+    func apply(toBoid boid:Boid, inFlock flock:[Boid]) {
+        self.velocity = CGPoint.zero
+
         for flockBoid in flock {
             guard flockBoid != boid else { continue }
-            boid.velocity += flockBoid.velocity
+            self.velocity += flockBoid.velocity
         }
-        boid.velocity /= CGFloat(flock.count-1)
-        boid.velocity += (boid.velocity - boid.velocity)
+        self.velocity /= CGFloat(flock.count-1)
+        
+        self.velocity += (self.velocity - boid.velocity) / 8
     }
 }
