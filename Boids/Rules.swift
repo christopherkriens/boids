@@ -1,4 +1,7 @@
 import UIKit
+import GameplayKit
+
+// Algorithm : http://www.kfish.org/boids/pseudocode.html
 
 /**
  Rule protocol
@@ -17,7 +20,6 @@ protocol Rule {
  toward the averaged position of the entire flock
  */
 class CenterOfMass: Rule {
-    var factor: CGFloat = 300
     var velocity: CGPoint = CGPoint.zero
     
     func apply(toBoid boid:Boid, inFlock flock:[Boid]) {
@@ -28,10 +30,9 @@ class CenterOfMass: Rule {
             self.velocity += flockBoid.position
         }
         self.velocity /= CGFloat(flock.count-1)
-        self.velocity = (self.velocity - boid.position) / 100
+        self.velocity = (self.velocity - boid.position) / 500
     }
 }
-
 
 /**
  Separation
@@ -41,7 +42,6 @@ class CenterOfMass: Rule {
  */
 class Separation: Rule {
     var velocity: CGPoint = CGPoint.zero
-    private let personalSpace: CGFloat = 25.0
 
     func apply(toBoid boid:Boid, inFlock flock:[Boid]) {
         self.velocity = CGPoint.zero
@@ -49,8 +49,8 @@ class Separation: Rule {
         for flockBoid in flock {
             guard flockBoid != boid else { continue }
             
-            if boid.position.distance(from: flockBoid.position) < self.personalSpace {
-                self.velocity -= (flockBoid.position - boid.position)/25
+            if boid.position.distance(from: flockBoid.position) < boid.radius {
+                self.velocity -= (flockBoid.position - boid.position)/20
             }
         }
     }
