@@ -4,14 +4,12 @@ import GameplayKit
 // Algorithm : http://www.kfish.org/boids/pseudocode.html
 
 /**
- Rule protocol
- - All rules must conform to this basic protocol
+ Behavior protocol
+ - All behaviors must adopt this protocol
  */
-protocol Rule {
+protocol Behavior {
     var velocity: CGPoint { get }
-    mutating func apply(toBoid boid:Boid, inFlock flock:[Boid])
 }
-
 
 /**
  Center of Mass
@@ -19,9 +17,9 @@ protocol Rule {
  - This rule applies a tendency to move the boid
  toward the averaged position of the entire flock
  */
-class CenterOfMass: Rule {
+class CenterOfMass: Behavior {
     var velocity: CGPoint = CGPoint.zero
-    
+
     func apply(toBoid boid:Boid, inFlock flock:[Boid]) {
         self.velocity = CGPoint.zero
 
@@ -40,7 +38,7 @@ class CenterOfMass: Rule {
  - This rule applies a tendency to move away from 
  neighboring boids when they get too close together
  */
-class Separation: Rule {
+class Separation: Behavior {
     var velocity: CGPoint = CGPoint.zero
 
     func apply(toBoid boid:Boid, inFlock flock:[Boid]) {
@@ -62,9 +60,9 @@ class Separation: Rule {
  - This rule applies a tendency for a boid to align its
  direction with the average direction of the entire flock
  */
-class Alignment: Rule {
+class Alignment: Behavior {
     var velocity: CGPoint = CGPoint.zero
-    
+
     func apply(toBoid boid:Boid, inFlock flock:[Boid]) {
         self.velocity = CGPoint.zero
 

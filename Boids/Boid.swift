@@ -17,7 +17,7 @@ class Boid: SKSpriteNode {
     var velocity = CGPoint.zero
     var rotationalVelocity: CGFloat = 0.0
     
-    var rules = [Rule]()
+    var behaviors = [Behavior]()
     
     var hasGoal = false
     var goalPosition = CGPoint.zero
@@ -31,7 +31,7 @@ class Boid: SKSpriteNode {
         self.name = "boid"
         self.currentSpeed = maximumFlockSpeed
  
-        self.rules = [CenterOfMass(), Separation(), Alignment()]
+        self.behaviors = [CenterOfMass(), Separation(), Alignment()]
     }
     
     required init?(coder aDecoder: NSCoder) {
@@ -45,15 +45,31 @@ class Boid: SKSpriteNode {
     }
     
     func updateBoid(withinFlock flock: [Boid], frame: CGRect) {
-        for var rule in self.rules {
-            rule.apply(toBoid: self, inFlock: flock)
+
+        for behavior in self.behaviors {
+            let behaviorClass = String(describing: type(of: behavior))
+    
+            switch behaviorClass {
+            case String(describing: CenterOfMass.self):
+                let centerOfMass = behavior as? CenterOfMass
+                centerOfMass?.apply(toBoid: self, inFlock: flock)
+            case String(describing: Separation.self):
+                let separation = behavior as? Separation
+                separation?.apply(toBoid: self, inFlock: flock)
+            case String(describing: Alignment.self):
+                let alignment = behavior as? Alignment
+                alignment?.apply(toBoid: self, inFlock: flock)
+
+            default: break
+            }
         }
+
         self.updatePosition(frame: frame)
     }
     
     private func updatePosition(frame: CGRect) {
         //*** Sum the vectors from each of the rules ***//
-        self.velocity += self.rules.reduce(self.velocity, { velocity, rule in
+        self.velocity += self.behaviors.reduce(self.velocity, { velocity, rule in
             return velocity + rule.velocity
         })
         
@@ -123,7 +139,6 @@ class Boid: SKSpriteNode {
         self.rotationalVelocity = (currentIdealDirection/100 + self.rotationalVelocity)
         self.zRotation = currentIdealDirection + CGFloat(GLKMathDegreesToRadians(90))
 
-        // flip graphic bitch if traveling left or right
         if self.velocity.x < 0 {
             let flip = SKAction.scaleX(to: -1, duration: 0.1)
             self.setScale(1.0)
