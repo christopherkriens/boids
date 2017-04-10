@@ -18,7 +18,6 @@ class Boid: SKSpriteNode {
     var rotationalVelocity: CGFloat = 0.0
     
     var behaviors = [Behavior]()
-    
     var hasGoal = false
     var goalPosition = CGPoint.zero
     
@@ -31,7 +30,7 @@ class Boid: SKSpriteNode {
         self.name = "boid"
         self.currentSpeed = maximumFlockSpeed
  
-        self.behaviors = [CenterOfMass(), Separation(), Alignment()]
+        self.behaviors = [Cohesion(), Separation(), Alignment(), Bound()]
     }
     
     required init?(coder aDecoder: NSCoder) {
@@ -46,20 +45,34 @@ class Boid: SKSpriteNode {
     
     func updateBoid(withinFlock flock: [Boid], frame: CGRect) {
 
+        // Optimization: The original algorithm calls for each boid calculating
+        // its own center of mass, which involves iterating over the group for 
+        // each boid.  Let's instead calculate it once and send the value as a 
+        // parameter to the Cohesion Behavior.
+        let centerOfFlock = (flock.reduce(CGPoint.zero) { $0 + $1.position }) / CGFloat(flock.count)
+        
+        // Optimization: The original algorithm calls for each boid calculating
+        // its own average group velocity, which involves iterating over the group
+        // for each boid.  Let's instead calculate it once and send the value as a
+        // parameter to the Alignment Behavior.
+        let flockDirection = (flock.reduce(CGPoint.zero) { $0 + $1.velocity }) / CGFloat(flock.count)
+        
         for behavior in self.behaviors {
             let behaviorClass = String(describing: type(of: behavior))
     
             switch behaviorClass {
-            case String(describing: CenterOfMass.self):
-                let centerOfMass = behavior as? CenterOfMass
-                centerOfMass?.apply(toBoid: self, inFlock: flock)
+            case String(describing: Cohesion.self):
+                let cohension = behavior as? Cohesion
+                cohension?.apply(toBoid: self, inFlock: flock, withCenterOfMass:centerOfFlock)
             case String(describing: Separation.self):
                 let separation = behavior as? Separation
                 separation?.apply(toBoid: self, inFlock: flock)
             case String(describing: Alignment.self):
                 let alignment = behavior as? Alignment
-                alignment?.apply(toBoid: self, inFlock: flock)
-
+                alignment?.apply(toBoid: self, inFlock: flock, withAlignment: flockDirection)
+            case String(describing: Bound.self):
+                let bound = behavior as? Bound
+                bound?.apply(toBoid: self, inFrame: frame)
             default: break
             }
         }
@@ -68,19 +81,14 @@ class Boid: SKSpriteNode {
     }
     
     private func updatePosition(frame: CGRect) {
-        //*** Sum the vectors from each of the rules ***//
-        self.velocity += self.behaviors.reduce(self.velocity, { velocity, rule in
-            return velocity + rule.velocity
-        })
+        //*** Sum the vectors from each of the behaviors ***//
+        self.velocity += self.behaviors.reduce(self.velocity) { $0 + $1.velocity }
         
         //*** Move toward any goals ***//
         moveToGoal()
         
         //*** Make sure the result vector won't move the boid faster than the max speed ***//
         applySpeedLimit()
-
-        //*** Keep the flock within the frame bounds ***//
-        constrainToFrame(frame: frame)
         
         //*** Rotate in the direction of travel ***//
         rotate()
@@ -102,30 +110,7 @@ class Boid: SKSpriteNode {
             self.velocity = unitVector * self.currentSpeed
         }
     }
-    
-    private func constrainToFrame(frame: CGRect) {
-        let borderMargin = 100
-        let xMin: CGFloat = CGFloat(borderMargin)
-        let xMax: CGFloat = frame.size.width - CGFloat(borderMargin)
-        let yMin: CGFloat = CGFloat(borderMargin)
-        let yMax: CGFloat = frame.size.height - CGFloat(borderMargin)
-        let borderTurnResistance: CGFloat = self.currentSpeed * (1/5)
-        
-        if (self.position.x < xMin) {
-            self.velocity.x += borderTurnResistance
-        }
-        if (self.position.x > xMax) {
-            self.velocity.x -= borderTurnResistance
-        }
-        
-        if (self.position.y < yMin) {
-            self.velocity.y += borderTurnResistance
-        }
-        if (self.position.y > yMax) {
-            self.velocity.y -= borderTurnResistance
-        }
-    }
-    
+
     private func moveToGoal() {
         guard self.hasGoal else { return }
         self.velocity = (self.goalPosition - self.position)
