@@ -13,6 +13,7 @@
 		E279CBEA1E949A5A00A535DE /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = E279CBE81E949A5A00A535DE /* Main.storyboard */; };
 		E279CBEC1E949A5A00A535DE /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E279CBEB1E949A5A00A535DE /* Assets.xcassets */; };
 		E279CBEF1E949A5A00A535DE /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = E279CBED1E949A5A00A535DE /* LaunchScreen.storyboard */; };
+		E293E53A1E9D6C6B00D6CDC4 /* Goal.swift in Sources */ = {isa = PBXBuildFile; fileRef = E293E5391E9D6C6B00D6CDC4 /* Goal.swift */; };
 		E2FDA0461E9546B3007C8F90 /* Boid.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2FDA0451E9546B3007C8F90 /* Boid.swift */; };
 		E2FDA0481E954B1E007C8F90 /* Behavior.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2FDA0471E954B1E007C8F90 /* Behavior.swift */; };
 		E2FDA04D1E956B2D007C8F90 /* CGPoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2FDA04C1E956B2D007C8F90 /* CGPoint.swift */; };
@@ -29,6 +30,7 @@
 		E279CBEB1E949A5A00A535DE /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		E279CBEE1E949A5A00A535DE /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		E279CBF01E949A5A00A535DE /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		E293E5391E9D6C6B00D6CDC4 /* Goal.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Goal.swift; sourceTree = "<group>"; };
 		E2FDA0451E9546B3007C8F90 /* Boid.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Boid.swift; sourceTree = "<group>"; };
 		E2FDA0471E954B1E007C8F90 /* Behavior.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Behavior.swift; sourceTree = "<group>"; };
 		E2FDA04C1E956B2D007C8F90 /* CGPoint.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CGPoint.swift; sourceTree = "<group>"; };
@@ -70,6 +72,7 @@
 				E279CBE41E949A5A00A535DE /* BoidScene.swift */,
 				E279CBE61E949A5A00A535DE /* BoidViewController.swift */,
 				E2FDA0451E9546B3007C8F90 /* Boid.swift */,
+				E293E5391E9D6C6B00D6CDC4 /* Goal.swift */,
 				E2FDA0471E954B1E007C8F90 /* Behavior.swift */,
 				E2FDA04B1E956B10007C8F90 /* Extensions */,
 				E279CBE81E949A5A00A535DE /* Main.storyboard */,
@@ -170,6 +173,7 @@
 				E2FDA0461E9546B3007C8F90 /* Boid.swift in Sources */,
 				E2FDA04D1E956B2D007C8F90 /* CGPoint.swift in Sources */,
 				E2FDA0481E954B1E007C8F90 /* Behavior.swift in Sources */,
+				E293E53A1E9D6C6B00D6CDC4 /* Goal.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -22,7 +22,6 @@ class Cohesion: Behavior {
 
     func apply(toBoid boid:Boid, inFlock flock:[Boid], withCenterOfMass centerOfMass: CGPoint) {
         self.velocity = centerOfMass
-        self.velocity -= (boid.position / CGFloat(flock.count))
         self.velocity = (self.velocity - boid.position) / 300
     }
 }
@@ -60,7 +59,6 @@ class Alignment: Behavior {
 
     func apply(toBoid boid:Boid, inFlock flock:[Boid], withAlignment alignment: CGPoint) {
         self.velocity = alignment
-        self.velocity -= (boid.velocity / CGFloat(flock.count))
         self.velocity += (self.velocity - boid.velocity) / 8
     }
 }
@@ -77,24 +75,25 @@ class Bound: Behavior {
     func apply(toBoid boid:Boid, inFrame frame: CGRect) {
         self.velocity = CGPoint.zero
 
-        let borderMargin = 100
-        let xMin: CGFloat = CGFloat(borderMargin)
-        let xMax: CGFloat = frame.size.width - CGFloat(borderMargin)
-        let yMin: CGFloat = CGFloat(borderMargin)
-        let yMax: CGFloat = frame.size.height - CGFloat(borderMargin)
+        let borderMargin:CGFloat = 100
         let borderTurnResistance: CGFloat = 2
+
+        let xMinimum = borderMargin
+        let yMinimum = borderMargin
+        let xMaximum = frame.size.width - borderMargin
+        let yMaximum = frame.size.height - borderMargin
         
-        if boid.position.x < xMin {
+        if boid.position.x < xMinimum {
             self.velocity.x += borderTurnResistance
         }
-        if boid.position.x > xMax {
+        if boid.position.x > xMaximum {
             self.velocity.x -= borderTurnResistance
         }
         
-        if boid.position.y < yMin {
+        if boid.position.y < yMinimum {
             self.velocity.y += borderTurnResistance
         }
-        if boid.position.y > yMax {
+        if boid.position.y > yMaximum {
             self.velocity.y -= borderTurnResistance
         }
     }
