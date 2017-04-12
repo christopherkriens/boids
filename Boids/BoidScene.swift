@@ -19,7 +19,6 @@ class BoidScene: SKScene {
         let randomSource = GKARC4RandomSource()
         let randomHorizontal = GKRandomDistribution(randomSource: randomSource, lowestValue: Int(round(0)), highestValue: Int(round(size.width)))
         let randomVertical = GKRandomDistribution(randomSource: randomSource, lowestValue: Int(round(0)), highestValue: Int(round(size.height)))
-        let randomSpeed = GKRandomDistribution(randomSource: randomSource, lowestValue: Int(round(2)), highestValue: Int(round(3)))
         
         for i in 0..<self.numberOfBoids {
             let boid = Boid(texture: SKTexture(imageNamed:"tang"), color: UIColor.white, size: CGSize(width: 40, height: 32))
@@ -28,7 +27,6 @@ class BoidScene: SKScene {
             
             boid.position = CGPoint(x: randomX, y: randomY)
             boid.name = "boid\(i)"
-            //boid.maximumFlockSpeed = CGFloat(randomSpeed.nextInt())
             
             self.flock.append(boid)
             addChild(boid)

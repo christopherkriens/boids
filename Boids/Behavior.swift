@@ -42,7 +42,7 @@ class Separation: Behavior {
             guard flockBoid != boid else { continue }
             
             if boid.position.distance(from: flockBoid.position) < boid.radius {
-                self.velocity -= (flockBoid.position - boid.position) / 20
+                self.velocity -= (flockBoid.position - boid.position) / 40
             }
         }
     }
@@ -76,7 +76,7 @@ class Bound: Behavior {
         self.velocity = CGPoint.zero
 
         let borderMargin:CGFloat = 100
-        let borderTurnResistance: CGFloat = 2
+        let borderAversion: CGFloat = 2
 
         let xMinimum = borderMargin
         let yMinimum = borderMargin
@@ -84,17 +84,17 @@ class Bound: Behavior {
         let yMaximum = frame.size.height - borderMargin
         
         if boid.position.x < xMinimum {
-            self.velocity.x += borderTurnResistance
+            self.velocity.x += borderAversion
         }
         if boid.position.x > xMaximum {
-            self.velocity.x -= borderTurnResistance
+            self.velocity.x -= borderAversion
         }
         
         if boid.position.y < yMinimum {
-            self.velocity.y += borderTurnResistance
+            self.velocity.y += borderAversion
         }
         if boid.position.y > yMaximum {
-            self.velocity.y -= borderTurnResistance
+            self.velocity.y -= borderAversion
         }
     }
 }

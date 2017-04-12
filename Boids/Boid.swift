@@ -15,16 +15,15 @@ class Boid: SKSpriteNode {
     var currentSpeed: CGFloat = 3
     let radius: CGFloat = 30.0
     var velocity = CGPoint.zero
+    var behaviors = [Behavior]()
+    var goals = [Goal]()
     
     private var timer: Timer?
     
     private var perceivedCenter = CGPoint.zero
     private var perceivedDirection = CGPoint.zero
-    
-    private var behaviors = [Behavior]()
-    private var goals = [Goal]()
     private var goalPosition = CGPoint.zero
-    
+
     override init(texture: SKTexture?, color: UIColor, size: CGSize) {
         super.init(texture: texture, color: color, size: size)
 
@@ -44,10 +43,9 @@ class Boid: SKSpriteNode {
     
     func setGoal(toGoal goal:CGPoint) {
         self.goals = [Travel()]
-        // self.goalPosition = goal
-        self.currentSpeed = self.maximumGoalSpeed
+        self.goalPosition = goal
     }
-    
+
     func updateBoid(withinFlock flock: [Boid], frame: CGRect) {
 
         // Optimization: The original algorithm calls for each boid calculating
@@ -88,21 +86,32 @@ class Boid: SKSpriteNode {
             default: break
             }
         }
+        
+        // Apply each of the boid's goals
+        for goal in self.goals {
+            let goalClass = String(describing: type(of: goal))
 
+            switch goalClass {
+            case String(describing: Travel.self):
+                let travel = goal as? Travel
+                travel?.move(boid: self, toPoint: self.goalPosition)
+                
+            default: break
+            }
+        }
+        self.goals = self.goals.filter { $0.achieved == false }
         self.updatePosition(frame: frame)
     }
 
     private func updatePosition(frame: CGRect) {
         
+        
         if self.goals.count > 0 {
             //*** Move toward any goals ***//
-            self.currentSpeed = self.maximumGoalSpeed
-            self.velocity = CGPoint.zero
-            self.velocity += self.goals.reduce(self.velocity) { $0 + $1.destination }
+            self.velocity = self.goals.reduce(self.velocity) { $0 + $1.destination }
 
         } else {
             //*** Sum the velocities from each of the behaviors ***//
-            //self.currentSpeed = self.maximumFlockSpeed
             self.velocity += self.behaviors.reduce(self.velocity) { $0 + $1.velocity }
         }
 
@@ -115,7 +124,7 @@ class Boid: SKSpriteNode {
     }
     
     private func applySpeedLimit() {
-        
+
         // Enhancement: If the boid has become separated from the group,
         // allow a temporary increase in velocity until it's able to rejoin
         if self.perceivedCenter.distance(from: self.position) > 200 {

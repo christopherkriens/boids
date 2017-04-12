@@ -8,6 +8,7 @@ import GameplayKit
  **/
 protocol Goal {
     var destination: CGPoint { get }
+    var achieved: Bool { get }
 }
 
 /**
@@ -16,14 +17,18 @@ protocol Goal {
  - This moves the boid toward a point
  **/
 class Travel: Goal {
+    var achieved: Bool = false
     var destination: CGPoint = CGPoint.zero
+    
     let goalThreshhold: CGFloat = 5
 
     func move(boid:Boid, toPoint destination:CGPoint) {
         guard boid.position.distance(from: destination) > goalThreshhold else {
-            boid.currentSpeed *= 1.5
+            self.achieved = true
+            boid.currentSpeed = boid.maximumFlockSpeed
             return
         }
+        boid.currentSpeed = boid.maximumGoalSpeed
         boid.velocity = (destination - boid.position)
     }
 }
