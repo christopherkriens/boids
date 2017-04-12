@@ -17,7 +17,6 @@
 		E2FDA0461E9546B3007C8F90 /* Boid.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2FDA0451E9546B3007C8F90 /* Boid.swift */; };
 		E2FDA0481E954B1E007C8F90 /* Behavior.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2FDA0471E954B1E007C8F90 /* Behavior.swift */; };
 		E2FDA04D1E956B2D007C8F90 /* CGPoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2FDA04C1E956B2D007C8F90 /* CGPoint.swift */; };
-		E2FDA04F1E958E2B007C8F90 /* nyan.png in Resources */ = {isa = PBXBuildFile; fileRef = E2FDA04E1E958E2B007C8F90 /* nyan.png */; };
 		E2FDA0551E96D270007C8F90 /* tang@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = E2FDA0541E96D270007C8F90 /* tang@2x.png */; };
 /* End PBXBuildFile section */
 
@@ -34,7 +33,6 @@
 		E2FDA0451E9546B3007C8F90 /* Boid.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Boid.swift; sourceTree = "<group>"; };
 		E2FDA0471E954B1E007C8F90 /* Behavior.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Behavior.swift; sourceTree = "<group>"; };
 		E2FDA04C1E956B2D007C8F90 /* CGPoint.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CGPoint.swift; sourceTree = "<group>"; };
-		E2FDA04E1E958E2B007C8F90 /* nyan.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = nyan.png; sourceTree = "<group>"; };
 		E2FDA0541E96D270007C8F90 /* tang@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "tang@2x.png"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -79,7 +77,6 @@
 				E279CBEB1E949A5A00A535DE /* Assets.xcassets */,
 				E279CBED1E949A5A00A535DE /* LaunchScreen.storyboard */,
 				E279CBF01E949A5A00A535DE /* Info.plist */,
-				E2FDA04E1E958E2B007C8F90 /* nyan.png */,
 				E2FDA0541E96D270007C8F90 /* tang@2x.png */,
 			);
 			path = Boids;
@@ -153,7 +150,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				E279CBEA1E949A5A00A535DE /* Main.storyboard in Resources */,
-				E2FDA04F1E958E2B007C8F90 /* nyan.png in Resources */,
 				E2FDA0551E96D270007C8F90 /* tang@2x.png in Resources */,
 				E279CBEC1E949A5A00A535DE /* Assets.xcassets in Resources */,
 				E279CBEF1E949A5A00A535DE /* LaunchScreen.storyboard in Resources */,

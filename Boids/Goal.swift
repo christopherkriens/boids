@@ -7,8 +7,18 @@ import GameplayKit
  - All goals must adopt this protocol
  **/
 protocol Goal {
-    var destination: CGPoint { get }
-    var achieved: Bool { get }
+    var destination: CGPoint { get set }
+    var achieved: Bool { get set }
+    init(destination: CGPoint)
+    init()
+}
+
+extension Goal {
+    init (destination: CGPoint) {
+        self.init()
+        self.achieved = false
+        self.destination = destination
+    }
 }
 
 /**
@@ -16,13 +26,13 @@ protocol Goal {
  
  - This moves the boid toward a point
  **/
-class Travel: Goal {
+final class Seek: Goal {
     var achieved: Bool = false
     var destination: CGPoint = CGPoint.zero
-    
-    let goalThreshhold: CGFloat = 5
 
     func move(boid:Boid, toPoint destination:CGPoint) {
+        let goalThreshhold: CGFloat = boid.radius
+
         guard boid.position.distance(from: destination) > goalThreshhold else {
             self.achieved = true
             boid.currentSpeed = boid.maximumFlockSpeed

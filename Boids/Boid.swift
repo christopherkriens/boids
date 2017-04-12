@@ -13,16 +13,18 @@ class Boid: SKSpriteNode {
     var maximumFlockSpeed: CGFloat = 3
     var maximumGoalSpeed: CGFloat = 6
     var currentSpeed: CGFloat = 3
-    let radius: CGFloat = 30.0
     var velocity = CGPoint.zero
     var behaviors = [Behavior]()
     var goals = [Goal]()
+    var destination = CGPoint.zero
     
     private var timer: Timer?
-    
     private var perceivedCenter = CGPoint.zero
     private var perceivedDirection = CGPoint.zero
-    private var goalPosition = CGPoint.zero
+    
+    var radius: CGFloat {
+        return min(self.size.width, self.size.height)
+    }
 
     override init(texture: SKTexture?, color: UIColor, size: CGSize) {
         super.init(texture: texture, color: color, size: size)
@@ -41,9 +43,9 @@ class Boid: SKSpriteNode {
         fatalError("init(coder:) has not been implemented")
     }
     
-    func setGoal(toGoal goal:CGPoint) {
-        self.goals = [Travel()]
-        self.goalPosition = goal
+    func seek(to destination:CGPoint) {
+        self.destination = destination
+        self.goals.append(Seek())
     }
 
     func updateBoid(withinFlock flock: [Boid], frame: CGRect) {
@@ -92,15 +94,16 @@ class Boid: SKSpriteNode {
             let goalClass = String(describing: type(of: goal))
 
             switch goalClass {
-            case String(describing: Travel.self):
-                let travel = goal as? Travel
-                travel?.move(boid: self, toPoint: self.goalPosition)
-                
+            case String(describing: Seek.self):
+                let seek = goal as? Seek
+                seek?.move(boid: self, toPoint: self.destination)
+
             default: break
             }
         }
         //** Remove any goals that have been achieved **//
         self.goals = self.goals.filter { $0.achieved == false }
+
         self.updatePosition(frame: frame)
     }
 

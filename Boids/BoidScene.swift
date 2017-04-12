@@ -16,12 +16,14 @@ class BoidScene: SKScene {
     override func didMove(to view: SKView) {
         self.backgroundColor = SKColor(colorLiteralRed: (2/255), green: (125/255), blue: (145/255), alpha: 1.0)
     
+        
+        
         let randomSource = GKARC4RandomSource()
         let randomHorizontal = GKRandomDistribution(randomSource: randomSource, lowestValue: Int(round(0)), highestValue: Int(round(size.width)))
         let randomVertical = GKRandomDistribution(randomSource: randomSource, lowestValue: Int(round(0)), highestValue: Int(round(size.height)))
         
         for i in 0..<self.numberOfBoids {
-            let boid = Boid(texture: SKTexture(imageNamed:"tang"), color: UIColor.white, size: CGSize(width: 40, height: 32))
+            let boid = Boid(texture: SKTexture(imageNamed:"tang"), color: .white, size: CGSize(width: 40, height: 32))
             let randomX = randomHorizontal.nextInt()
             let randomY = randomVertical.nextInt()
             
@@ -42,9 +44,9 @@ class BoidScene: SKScene {
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         if let touch = touches.first {
-            let touchPosition = touch.previousLocation(in: self)
+            let touchPosition = touch.location(in: self)
             for boid in flock {
-                boid.setGoal(toGoal: touchPosition)
+                boid.seek(to: touchPosition)
             }
         }
     }

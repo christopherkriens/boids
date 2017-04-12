@@ -8,28 +8,24 @@ import GameplayKit
  - All behaviors must adopt this protocol
  **/
 protocol Behavior {
-    var velocity: CGPoint { get }
+    var velocity: CGPoint { get set }
     var intensity: CGFloat { get set }
     init(intensity: CGFloat)
+    init()
 }
 
-class GenericBehavior: Behavior {
-    var intensity: CGFloat
-    var velocity: CGPoint
-    let valid: ClosedRange<CGFloat> = 0.0...1.0
-    
-    required init(intensity: CGFloat) {
+extension Behavior {
+    init(intensity: CGFloat) {
+        self.init()
+        
         self.velocity = CGPoint.zero
+        self.intensity = intensity
 
+        let valid: ClosedRange<CGFloat> = 0.0...1.0
         guard valid.contains(intensity) else {
             self.intensity = (round(intensity) > valid.upperBound/2) ? valid.lowerBound : valid.upperBound
             return
         }
-        self.intensity = intensity
-    }
-    
-    convenience init() {
-        self.init(intensity: 1)
     }
 }
 
@@ -39,8 +35,10 @@ class GenericBehavior: Behavior {
  - This behavior applies a tendency to move the boid
  toward the averaged position of the entire flock
  **/
-final class Cohesion: GenericBehavior {
-    
+final class Cohesion: Behavior {
+    var velocity: CGPoint = CGPoint.zero
+    var intensity: CGFloat = 0.0
+
     func apply(toBoid boid:Boid, inFlock flock:[Boid], withCenterOfMass centerOfMass: CGPoint) {
         self.velocity = centerOfMass
         self.velocity = (self.velocity - boid.position) * self.intensity
@@ -53,8 +51,10 @@ final class Cohesion: GenericBehavior {
  - This behavior applies a tendency to move away from
  neighboring boids when they get too close together
  **/
-final class Separation: GenericBehavior {
-
+final class Separation: Behavior {
+    var velocity: CGPoint = CGPoint.zero
+    var intensity: CGFloat = 0.0
+    
     func apply(toBoid boid:Boid, inFlock flock:[Boid]) {
         self.velocity = CGPoint.zero
         
@@ -74,7 +74,10 @@ final class Separation: GenericBehavior {
  - This behavior applies a tendency for a boid to align its
  direction with the average direction of the entire flock
  **/
-final class Alignment: GenericBehavior {
+final class Alignment: Behavior {
+    var velocity: CGPoint = CGPoint.zero
+    var intensity: CGFloat = 0.0
+    
     func apply(toBoid boid:Boid, inFlock flock:[Boid], withAlignment alignment: CGPoint) {
         self.velocity = alignment
         self.velocity += (self.velocity - boid.velocity) * self.intensity
@@ -87,7 +90,10 @@ final class Alignment: GenericBehavior {
  - This behavior applies a tendency for a boid to move away 
  from the edges of the screen within a sufficient margin
  **/
-final class Bound: GenericBehavior {
+final class Bound: Behavior {
+    var velocity: CGPoint = CGPoint.zero
+    var intensity: CGFloat = 0.0
+    
     func apply(toBoid boid:Boid, inFrame frame: CGRect) {
         self.velocity = CGPoint.zero
 
