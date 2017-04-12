@@ -33,7 +33,7 @@ class Boid: SKSpriteNode {
         self.name = "boid"
         self.currentSpeed = maximumFlockSpeed
         
-        self.behaviors = [Cohesion(), Separation(), Alignment(), Bound()]
+        self.behaviors = [Cohesion(intensity: 0.005), Separation(intensity: 0.05), Alignment(intensity: 0.01), Bound()]
         self.goals = []
     }
     
@@ -62,7 +62,7 @@ class Boid: SKSpriteNode {
         self.perceivedDirection = (flock.reduce(CGPoint.zero) { $0 + $1.velocity }) / CGFloat(flock.count)
         self.perceivedDirection -= (self.velocity / CGFloat(flock.count))
 
-        // Apply each of the boid's behaviors
+        //** Apply each of the boid's behaviors **//
         for behavior in self.behaviors {
             let behaviorClass = String(describing: type(of: behavior))
     
@@ -87,7 +87,7 @@ class Boid: SKSpriteNode {
             }
         }
         
-        // Apply each of the boid's goals
+        //** Apply each of the boid's goals **//
         for goal in self.goals {
             let goalClass = String(describing: type(of: goal))
 
@@ -99,19 +99,19 @@ class Boid: SKSpriteNode {
             default: break
             }
         }
+        //** Remove any goals that have been achieved **//
         self.goals = self.goals.filter { $0.achieved == false }
         self.updatePosition(frame: frame)
     }
 
     private func updatePosition(frame: CGRect) {
         
-        
+        //** Goals take priority over flocking behaviors **//
         if self.goals.count > 0 {
-            //*** Move toward any goals ***//
+            //*** Move toward the average destination of all goals ***//
             self.velocity = self.goals.reduce(self.velocity) { $0 + $1.destination }
-
         } else {
-            //*** Sum the velocities from each of the behaviors ***//
+            //*** Move the average velocity from each of the behaviors ***//
             self.velocity += self.behaviors.reduce(self.velocity) { $0 + $1.velocity }
         }
 
