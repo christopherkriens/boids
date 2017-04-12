@@ -7,12 +7,11 @@
 //
 
 import SpriteKit
-import GameplayKit
 
 class Boid: SKSpriteNode {
-    var maximumFlockSpeed: CGFloat = 3
-    var maximumGoalSpeed: CGFloat = 6
-    var currentSpeed: CGFloat = 3
+    var maximumFlockSpeed: CGFloat = 2
+    var maximumGoalSpeed: CGFloat = 4
+    var currentSpeed: CGFloat
     var velocity = CGPoint.zero
     var behaviors = [Behavior]()
     var goals = [Goal]()
@@ -27,15 +26,16 @@ class Boid: SKSpriteNode {
     }
 
     override init(texture: SKTexture?, color: UIColor, size: CGSize) {
+        self.currentSpeed = maximumFlockSpeed
+
         super.init(texture: texture, color: color, size: size)
 
         self.anchorPoint = CGPoint(x: 0.5, y: 0.5)
         self.position = CGPoint.zero
         self.zPosition = 2
         self.name = "boid"
-        self.currentSpeed = maximumFlockSpeed
-        
-        self.behaviors = [Cohesion(intensity: 0.005), Separation(intensity: 0.05), Alignment(intensity: 0.01), Bound()]
+
+        self.behaviors = [Cohesion(intensity: 0.005), Separation(intensity: 0.03), Alignment(intensity: 0.2), Bound()]
         self.goals = []
     }
     
@@ -43,10 +43,19 @@ class Boid: SKSpriteNode {
         fatalError("init(coder:) has not been implemented")
     }
     
-    func seek(to destination:CGPoint) {
-        self.destination = destination
+    func seek(to point:CGPoint) {
+        self.destination = point
         self.goals.append(Seek())
     }
+    
+    func evade(from point:CGPoint) {
+        self.destination = point
+        self.goals.append(Evade())
+    }
+    
+    /*func removeGoals() {
+        self.goals.removeAll()
+    }*/
 
     func updateBoid(withinFlock flock: [Boid], frame: CGRect) {
 
@@ -56,6 +65,10 @@ class Boid: SKSpriteNode {
         // parameter to the Cohesion Behavior.
         self.perceivedCenter = (flock.reduce(CGPoint.zero) { $0 + $1.position }) / CGFloat(flock.count)
         self.perceivedCenter -= self.position / CGFloat(flock.count)
+        
+        // Possible enhancement; Apply a distance limit to a boid's ability to
+        // calculate its center of mass and direction.  Could lead to groups 
+        // separating off and merging back together
 
         // Optimization: The original algorithm calls for each boid calculating
         // its own average group velocity, which involves iterating over the group
@@ -97,7 +110,10 @@ class Boid: SKSpriteNode {
             case String(describing: Seek.self):
                 let seek = goal as? Seek
                 seek?.move(boid: self, toPoint: self.destination)
-
+            case String(describing: Evade.self):
+                let evade = goal as? Evade
+                evade?.move(boid: self, fromPoint: self.destination)
+                
             default: break
             }
         }
@@ -108,14 +124,15 @@ class Boid: SKSpriteNode {
     }
 
     private func updatePosition(frame: CGRect) {
+        let momentum: CGFloat = 5
         
         //** Goals take priority over flocking behaviors **//
         if self.goals.count > 0 {
             //*** Move toward the average destination of all goals ***//
-            self.velocity = self.goals.reduce(self.velocity) { $0 + $1.destination }
+            self.velocity += (self.goals.reduce(self.velocity) { $0 + $1.point }) / momentum
         } else {
             //*** Move the average velocity from each of the behaviors ***//
-            self.velocity += self.behaviors.reduce(self.velocity) { $0 + $1.velocity }
+            self.velocity += (self.behaviors.reduce(self.velocity) { $0 + $1.velocity }) / momentum
         }
 
         applySpeedLimit()
@@ -130,9 +147,15 @@ class Boid: SKSpriteNode {
 
         // Enhancement: If the boid has become separated from the group,
         // allow a temporary increase in velocity until it's able to rejoin
-        if self.perceivedCenter.distance(from: self.position) > 200 {
-           // self.velocity = self.perceivedCenter
-           // self.currentSpeed = maximumGoalSpeed
+        /*if self.perceivedCenter.distance(from: self.position) > 200 {
+            self.velocity = self.perceivedCenter
+            self.currentSpeed = maximumGoalSpeed * 2
+        }*/
+        
+        if self.goals.count > 0 {
+            currentSpeed = maximumGoalSpeed
+        } else {
+            currentSpeed = maximumFlockSpeed
         }
         
         let vector = self.velocity.length

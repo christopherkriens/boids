@@ -9,7 +9,6 @@
 
 import UIKit
 import SpriteKit
-import GameplayKit
 
 class BoidViewController: UIViewController {
 

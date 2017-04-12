@@ -40,8 +40,7 @@ final class Cohesion: Behavior {
     var intensity: CGFloat = 0.0
 
     func apply(toBoid boid:Boid, inFlock flock:[Boid], withCenterOfMass centerOfMass: CGPoint) {
-        self.velocity = centerOfMass
-        self.velocity = (self.velocity - boid.position) * self.intensity
+        self.velocity = (centerOfMass - boid.position) * self.intensity
     }
 }
 
@@ -79,8 +78,7 @@ final class Alignment: Behavior {
     var intensity: CGFloat = 0.0
     
     func apply(toBoid boid:Boid, inFlock flock:[Boid], withAlignment alignment: CGPoint) {
-        self.velocity = alignment
-        self.velocity += (self.velocity - boid.velocity) * self.intensity
+        self.velocity = (alignment - boid.velocity) * self.intensity
     }
 }
 
@@ -98,7 +96,7 @@ final class Bound: Behavior {
         self.velocity = CGPoint.zero
 
         let borderMargin:CGFloat = 100
-        let borderAversion: CGFloat = 2
+        let borderAversion: CGFloat = boid.currentSpeed / 3
 
         let xMinimum = borderMargin
         let yMinimum = borderMargin

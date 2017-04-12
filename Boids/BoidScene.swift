@@ -7,28 +7,28 @@
 //
 
 import SpriteKit
-import GameplayKit
 
 class BoidScene: SKScene {
-    let numberOfBoids = 50
+    let numberOfBoids = 40
     var flock = [Boid]()
+    var moving = false
     
     override func didMove(to view: SKView) {
         self.backgroundColor = SKColor(colorLiteralRed: (2/255), green: (125/255), blue: (145/255), alpha: 1.0)
-    
-        
-        
-        let randomSource = GKARC4RandomSource()
-        let randomHorizontal = GKRandomDistribution(randomSource: randomSource, lowestValue: Int(round(0)), highestValue: Int(round(size.width)))
-        let randomVertical = GKRandomDistribution(randomSource: randomSource, lowestValue: Int(round(0)), highestValue: Int(round(size.height)))
-        
+                
         for i in 0..<self.numberOfBoids {
-            let boid = Boid(texture: SKTexture(imageNamed:"tang"), color: .white, size: CGSize(width: 40, height: 32))
-            let randomX = randomHorizontal.nextInt()
-            let randomY = randomVertical.nextInt()
+            let boid = Boid(texture: SKTexture(imageNamed:"tang"), color: .white, size: CGSize(width: 30, height: 24))
             
-            boid.position = CGPoint(x: randomX, y: randomY)
-            boid.name = "boid\(i)"
+            let randomStartPositionX = round(CGFloat.random(min: 0, max: size.width))
+            let randomStartPositionY = round(CGFloat.random(min: 0, max: size.height))
+            let randomFlockSpeed = CGFloat.random(min: 2, max: 3)
+            let randomGoalSpeed = CGFloat.random(min: 5, max: 6)
+            
+            boid.maximumFlockSpeed = randomFlockSpeed
+            boid.maximumGoalSpeed = randomGoalSpeed
+            
+            boid.position = CGPoint(x: randomStartPositionX, y: randomStartPositionY)
+            boid.name = "boid-\(i)"
             
             self.flock.append(boid)
             addChild(boid)
@@ -42,11 +42,33 @@ class BoidScene: SKScene {
         }
     }
     
-    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+    override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
+        if moving {
+            moving = false
+            /*for boid in flock {
+                boid.removeGoals()
+            }*/
+            return
+        }
+        
         if let touch = touches.first {
             let touchPosition = touch.location(in: self)
             for boid in flock {
                 boid.seek(to: touchPosition)
+            }
+        }
+    }
+    
+    override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
+        if let touch = touches.first {
+            let touchPosition = touch.location(in: self)
+            let previousTouchPoistion = touch.previousLocation(in: self)
+            
+            if touchPosition != previousTouchPoistion {
+                moving = true
+                for boid in flock {
+                    boid.evade(from: touchPosition)
+                }
             }
         }
     }
