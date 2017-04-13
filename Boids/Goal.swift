@@ -8,7 +8,6 @@ import GameplayKit
  **/
 protocol Goal {
     var point: CGPoint { get set }
-    var achieved: Bool { get set }
     init(point: CGPoint)
     init()
 }
@@ -16,15 +15,14 @@ protocol Goal {
 extension Goal {
     init (point: CGPoint) {
         self.init()
-        self.achieved = false
         self.point = point
     }
 }
 
 /**
- Travel
+ Seek
  
- - This moves the boid toward a point
+ - This moves the boid toward a point in the frame
  **/
 final class Seek: Goal {
     var achieved: Bool = false
@@ -34,28 +32,29 @@ final class Seek: Goal {
         let goalThreshhold: CGFloat = boid.radius
         
         guard boid.position.distance(from: destination) > goalThreshhold else {
-            self.achieved = true
             boid.currentSpeed = boid.maximumFlockSpeed
+            boid.goals = boid.goals.filter() { $0 as? Seek !== self }
             return
         }
-       // boid.currentSpeed = boid.maximumGoalSpeed
         boid.velocity = (destination - boid.position)
     }
 }
 
+/**
+ Seek
+ 
+ - This moves the boid toward a point in the frame
+ **/
 final class Evade: Goal {
-    var achieved: Bool = false
     var point: CGPoint = CGPoint.zero
     
     func move(boid:Boid, fromPoint destination:CGPoint) {
         let fearThreshold: CGFloat = boid.radius * 4
 
         if boid.position.distance(from: destination) < fearThreshold {
-           // boid.currentSpeed = boid.maximumGoalSpeed
             boid.velocity = -(destination - boid.position)
         } else {
-            //boid.currentSpeed = boid.maximumFlockSpeed
-            boid.goals.removeAll() // only works if there's one, but testable!
+            boid.goals = boid.goals.filter() { $0 as? Evade !== self }
         }
     }
 }

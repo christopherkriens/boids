@@ -17,7 +17,7 @@ class BoidScene: SKScene {
         self.backgroundColor = SKColor(colorLiteralRed: (2/255), green: (125/255), blue: (145/255), alpha: 1.0)
                 
         for i in 0..<self.numberOfBoids {
-            let boid = Boid(texture: SKTexture(imageNamed:"tang"), color: .white, size: CGSize(width: 30, height: 24))
+            let boid = Boid(texture: SKTexture(imageNamed:"tang"), color: .white, size: CGSize(width: 40, height: 32))
             
             let randomStartPositionX = round(CGFloat.random(min: 0, max: size.width))
             let randomStartPositionY = round(CGFloat.random(min: 0, max: size.height))
@@ -45,9 +45,6 @@ class BoidScene: SKScene {
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
         if moving {
             moving = false
-            /*for boid in flock {
-                boid.removeGoals()
-            }*/
             return
         }
         

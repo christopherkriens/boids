@@ -35,7 +35,7 @@ class Boid: SKSpriteNode {
         self.zPosition = 2
         self.name = "boid"
 
-        self.behaviors = [Cohesion(intensity: 0.005), Separation(intensity: 0.03), Alignment(intensity: 0.2), Bound()]
+        self.behaviors = [Cohesion(intensity: 0.01), Separation(intensity: 0.02), Alignment(intensity: 0.2), Bound()]
         self.goals = []
     }
     
@@ -52,30 +52,32 @@ class Boid: SKSpriteNode {
         self.destination = point
         self.goals.append(Evade())
     }
-    
-    /*func removeGoals() {
-        self.goals.removeAll()
-    }*/
 
     func updateBoid(withinFlock flock: [Boid], frame: CGRect) {
 
-        // Optimization: The original algorithm calls for each boid calculating
-        // its own center of mass, which involves iterating over the group for 
-        // each boid.  Let's instead calculate it once and send the value as a 
-        // parameter to the Cohesion Behavior.
-        self.perceivedCenter = (flock.reduce(CGPoint.zero) { $0 + $1.position }) / CGFloat(flock.count)
-        self.perceivedCenter -= self.position / CGFloat(flock.count)
-        
-        // Possible enhancement; Apply a distance limit to a boid's ability to
-        // calculate its center of mass and direction.  Could lead to groups 
-        // separating off and merging back together
+        self.perceivedCenter = CGPoint.zero
+        self.perceivedDirection = CGPoint.zero
 
-        // Optimization: The original algorithm calls for each boid calculating
-        // its own average group velocity, which involves iterating over the group
-        // for each boid.  Let's instead calculate it once and send the value as a
-        // parameter to the Alignment Behavior.
-        self.perceivedDirection = (flock.reduce(CGPoint.zero) { $0 + $1.velocity }) / CGFloat(flock.count)
-        self.perceivedDirection -= (self.velocity / CGFloat(flock.count))
+        let neighborhoodSize:CGFloat = self.radius * 4
+        var boidsConsidered = 0
+        for flockBoid in flock {
+            guard flockBoid != self else { continue }
+            if self.position.distance(from: flockBoid.position) < neighborhoodSize {
+                self.perceivedCenter += flockBoid.position
+                self.perceivedDirection += flockBoid.velocity
+                boidsConsidered += 1
+            }
+        }
+        if boidsConsidered > 1 {
+            self.perceivedCenter /= CGFloat(boidsConsidered)
+            self.perceivedDirection /= CGFloat(boidsConsidered)
+        } else {
+            self.perceivedCenter = (flock.reduce(CGPoint.zero) { $0 + $1.position }) / CGFloat(flock.count)
+            self.perceivedCenter -= self.position / CGFloat(flock.count)
+            
+            self.perceivedDirection = (flock.reduce(CGPoint.zero) { $0 + $1.velocity }) / CGFloat(flock.count)
+            self.perceivedDirection -= (self.velocity / CGFloat(flock.count))
+        }
 
         //** Apply each of the boid's behaviors **//
         for behavior in self.behaviors {
@@ -117,8 +119,6 @@ class Boid: SKSpriteNode {
             default: break
             }
         }
-        //** Remove any goals that have been achieved **//
-        self.goals = self.goals.filter { $0.achieved == false }
 
         self.updatePosition(frame: frame)
     }
@@ -169,15 +169,16 @@ class Boid: SKSpriteNode {
         let currentIdealDirection = CGFloat(-atan2(Double(velocity.x), Double(velocity.y)))
         self.zRotation = currentIdealDirection + CGFloat(GLKMathDegreesToRadians(90))
 
-        if self.velocity.x < 0 {
-            /*let flip = SKAction.scaleX(to: -1, duration: 0.1)
+      /*  if self.velocity.x < 0 {
+         // flipping
+            let flip = SKAction.scaleX(to: -1, duration: 0.05)
             self.setScale(1.0)
             self.run(flip)
-            self.zRotation += CGFloat(GLKMathDegreesToRadians(180))*/
+            self.zRotation += CGFloat(GLKMathDegreesToRadians(180))
         } else {
-            /*let flip = SKAction.scaleX(to: 1, duration: 0.1)
+            let flip = SKAction.scaleX(to: 1, duration: 0.1)
             self.setScale(1.0)
-            self.run(flip)*/
-        }
+            self.run(flip)
+        }*/
     }
 }
