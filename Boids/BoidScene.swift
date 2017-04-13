@@ -15,19 +15,23 @@ class BoidScene: SKScene {
     
     override func didMove(to view: SKView) {
         self.backgroundColor = SKColor(colorLiteralRed: (2/255), green: (125/255), blue: (145/255), alpha: 1.0)
-                
+        
         for i in 0..<self.numberOfBoids {
+            // Create a new boid object
             let boid = Boid(texture: SKTexture(imageNamed:"tang"), color: .white, size: CGSize(width: 40, height: 32))
             
+            // Position the boid at a random screen location to start
             let randomStartPositionX = round(CGFloat.random(min: 0, max: size.width))
             let randomStartPositionY = round(CGFloat.random(min: 0, max: size.height))
+            boid.position = CGPoint(x: randomStartPositionX, y: randomStartPositionY)
+            
+            // Assign a randomized speed for flocking and goals
+            // This just creates a little variety in flock movement
             let randomFlockSpeed = CGFloat.random(min: 2, max: 3)
             let randomGoalSpeed = CGFloat.random(min: 5, max: 6)
-            
             boid.maximumFlockSpeed = randomFlockSpeed
             boid.maximumGoalSpeed = randomGoalSpeed
             
-            boid.position = CGPoint(x: randomStartPositionX, y: randomStartPositionY)
             boid.name = "boid-\(i)"
             
             self.flock.append(boid)

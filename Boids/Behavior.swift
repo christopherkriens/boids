@@ -4,16 +4,26 @@ import GameplayKit
 // Algorithm : http://www.kfish.org/boids/pseudocode.html
 
 /**
- Behavior protocol
- - All behaviors must adopt this protocol
- **/
+ All behaviors must adopt this protocol.  Behaviors are expected to calculate
+ a result vector based on the behavior rules and apply an intensity
+ */
 protocol Behavior {
+    /// The result velocity after the calculation
     var velocity: CGPoint { get set }
+    
+    /// The intensity applied to the velocity, bounded 0.0 to 1.0
     var intensity: CGFloat { get set }
+
     init(intensity: CGFloat)
     init()
 }
 
+/**
+ This extension provides a default implementation for initialization, so
+ that each class that adopts the protocol doesn't need to duplicate this
+ common functionality, and a computed property for accessing the scaled
+ vector.
+ */
 extension Behavior {
     init(intensity: CGFloat) {
         self.init()
@@ -27,29 +37,32 @@ extension Behavior {
             return
         }
     }
+    
+    var scaledVelocity: CGPoint {
+        return velocity*intensity
+    }
 }
 
+
 /**
- Cohesion
- 
- - This behavior applies a tendency to move the boid
- toward the averaged position of the entire flock
- **/
+ This behavior applies a tendency to move the boid toward a position.
+ This position tends to be the averaged position of the entire flock 
+ or a smaller group.
+ */
 final class Cohesion: Behavior {
     var velocity: CGPoint = CGPoint.zero
     var intensity: CGFloat = 0.0
 
     func apply(toBoid boid:Boid, inFlock flock:[Boid], withCenterOfMass centerOfMass: CGPoint) {
-        self.velocity = (centerOfMass - boid.position) * self.intensity
+        self.velocity = (centerOfMass - boid.position)
     }
 }
 
 /**
- Separation
- 
- - This behavior applies a tendency to move away from
- neighboring boids when they get too close together
- **/
+ This behavior applies a tendency to move away from neighbors when
+ they get too close together.  Prevents the proclivity to stack up 
+ on one another.
+ */
 final class Separation: Behavior {
     var velocity: CGPoint = CGPoint.zero
     var intensity: CGFloat = 0.0
@@ -61,33 +74,29 @@ final class Separation: Behavior {
             guard flockBoid != boid else { continue }
             
             if boid.position.distance(from: flockBoid.position) < boid.radius {
-                self.velocity -= (flockBoid.position - boid.position) * self.intensity
+                self.velocity -= (flockBoid.position - boid.position)
             }
         }
     }
 }
 
 /**
- Alignment
- 
- - This behavior applies a tendency for a boid to align its
+ This behavior applies a tendency for a boid to align its
  direction with the average direction of the entire flock
- **/
+ */
 final class Alignment: Behavior {
     var velocity: CGPoint = CGPoint.zero
     var intensity: CGFloat = 0.0
     
     func apply(toBoid boid:Boid, inFlock flock:[Boid], withAlignment alignment: CGPoint) {
-        self.velocity = (alignment - boid.velocity) * self.intensity
+        self.velocity = (alignment - boid.velocity)
     }
 }
 
 /**
- Bound
- 
- - This behavior applies a tendency for a boid to move away 
- from the edges of the screen within a sufficient margin
- **/
+ This behavior applies a tendency for a boid to move away
+ from the edges of the screen within a configurable margin
+ */
 final class Bound: Behavior {
     var velocity: CGPoint = CGPoint.zero
     var intensity: CGFloat = 0.0

@@ -24,7 +24,7 @@ class Boid: SKSpriteNode {
     var radius: CGFloat = 0
     var neighborhoodSize:CGFloat = 0
 
-// MARK: Initialization
+    // MARK: - Initialization
 
     override init(texture: SKTexture?, color: UIColor, size: CGSize) {
         self.currentSpeed = maximumFlockSpeed
@@ -36,7 +36,7 @@ class Boid: SKSpriteNode {
         self.zPosition = 2
         self.name = "boid"
 
-        self.behaviors = [Cohesion(intensity: 0.01), Separation(intensity: 0.02), Alignment(intensity: 0.1), Bound()]
+        self.behaviors = [Cohesion(intensity: 0.01), Separation(intensity: 0.02), Alignment(intensity: 0.1), Bound(intensity:1.0)]
         self.radius = min(self.size.width, self.size.height)
         self.neighborhoodSize = self.radius * 4
         
@@ -48,7 +48,7 @@ class Boid: SKSpriteNode {
         fatalError("init(coder:) has not been implemented")
     }
     
-    // MARK: Goals
+    // MARK: - Updates
     
     func seek(to point:CGPoint) {
         self.destination = point
@@ -59,8 +59,6 @@ class Boid: SKSpriteNode {
         self.destination = point
         self.goals.append(Evade())
     }
-    
-    // MARK: Updates
 
     func updateBoid(withinFlock flock: [Boid], frame: CGRect) {
         let neighbors = self.findNeighbors(inFlock: flock)
@@ -68,12 +66,19 @@ class Boid: SKSpriteNode {
         if neighbors.count > 1 {
             self.perceivedDirection = (neighbors.reduce(CGPoint.zero) { $0 + $1.velocity }) / CGFloat(neighbors.count)
             self.perceivedCenter = (neighbors.reduce(CGPoint.zero) { $0 + $1.position }) / CGFloat(neighbors.count)
+            self.currentSpeed = maximumFlockSpeed
+            
         } else {
             self.perceivedCenter = (flock.reduce(CGPoint.zero) { $0 + $1.position }) / CGFloat(flock.count)
             self.perceivedCenter -= self.position / CGFloat(flock.count)
             
             self.perceivedDirection = (flock.reduce(CGPoint.zero) { $0 + $1.velocity }) / CGFloat(flock.count)
             self.perceivedDirection -= (self.velocity / CGFloat(flock.count))
+
+            // experimental! accelerate when boid isn't in a group
+            if (self.currentSpeed < self.maximumGoalSpeed) {
+                self.currentSpeed *= 1.1
+            }
         }
 
         //** Apply each of the boid's behaviors **//
@@ -119,10 +124,13 @@ class Boid: SKSpriteNode {
 
         self.updatePosition(frame: frame)
     }
+}
 
-    // MARK: Private
+
+// MARK: - Private
+fileprivate extension Boid {
     
-    private func updatePosition(frame: CGRect) {
+    func updatePosition(frame: CGRect) {
         let momentum: CGFloat = 5
         
         //** Goals take priority over flocking behaviors **//
@@ -131,30 +139,20 @@ class Boid: SKSpriteNode {
             self.velocity += (self.goals.reduce(self.velocity) { $0 + $1.point }) / momentum
         } else {
             //*** Move the average velocity from each of the behaviors ***//
-            self.velocity += (self.behaviors.reduce(self.velocity) { $0 + $1.velocity }) / momentum
+            self.velocity += (self.behaviors.reduce(self.velocity) { $0 + $1.scaledVelocity }) / momentum
         }
-
+        
         applySpeedLimit()
-
-        //*** Rotate in the direction of travel ***//
+        
+        // Stay rotated toward the direction of travel
         rotate()
         
         self.position += self.velocity
     }
     
-    private func applySpeedLimit() {
-
-        // Enhancement: If the boid has become separated from the group,
-        // allow a temporary increase in velocity until it's able to rejoin
-        /*if self.perceivedCenter.distance(from: self.position) > 200 {
-            self.velocity = self.perceivedCenter
-            self.currentSpeed = maximumGoalSpeed * 2
-        }*/
-        
+    func applySpeedLimit() {
         if self.goals.count > 0 {
             currentSpeed = maximumGoalSpeed
-        } else {
-            currentSpeed = maximumFlockSpeed
         }
         
         let vector = self.velocity.length
@@ -163,10 +161,10 @@ class Boid: SKSpriteNode {
             self.velocity = unitVector * self.currentSpeed
         }
     }
-
-    private func findNeighbors(inFlock flock:[Boid]) -> [Boid] {
+    
+    func findNeighbors(inFlock flock:[Boid]) -> [Boid] {
         var neighbors = [Boid]()
-
+        
         for flockBoid in flock {
             guard flockBoid != self else { continue }
             if self.position.distance(from: flockBoid.position) < self.neighborhoodSize {
@@ -175,30 +173,37 @@ class Boid: SKSpriteNode {
                 let upperBound = flockBoid.velocity.rotate(aroundOrigin: flockBoid.position, byDegrees: visionAngle/2)
                 
                 if (lowerBound*flockBoid.velocity) * (lowerBound*upperBound) >= 0 && (upperBound*flockBoid.velocity) * (upperBound*lowerBound) >= 0 {
-                    // it's inside i guess
                     neighbors.append(flockBoid)
                 }
-                //if(AxB * AxC >= 0 && CxB * CxA >=0)
-                //then B is definitely inside A and C
             }
         }
         return neighbors
     }
-
-    private func rotate() {
+    
+    func rotate() {
         let currentIdealDirection = CGFloat(-atan2(Double(velocity.x), Double(velocity.y)))
         self.zRotation = currentIdealDirection + CGFloat(GLKMathDegreesToRadians(90))
-
-      /*  if self.velocity.x < 0 {
+        
+        /*  if self.velocity.x < 0 {
          // flipping
-            let flip = SKAction.scaleX(to: -1, duration: 0.05)
-            self.setScale(1.0)
-            self.run(flip)
-            self.zRotation += CGFloat(GLKMathDegreesToRadians(180))
-        } else {
-            let flip = SKAction.scaleX(to: 1, duration: 0.1)
-            self.setScale(1.0)
-            self.run(flip)
-        }*/
+         let flip = SKAction.scaleX(to: -1, duration: 0.05)
+         self.setScale(1.0)
+         self.run(flip)
+         self.zRotation += CGFloat(GLKMathDegreesToRadians(180))
+         } else {
+         let flip = SKAction.scaleX(to: 1, duration: 0.1)
+         self.setScale(1.0)
+         self.run(flip)
+         }*/
     }
 }
+
+
+
+
+extension Boid {
+    override public var description: String {
+        return "Boid<\(self.name ?? "")> | Position: \(self.position.x),\(self.position.y) | Velocity: \(self.velocity.x), \(self.velocity.y)"
+    }
+}
+

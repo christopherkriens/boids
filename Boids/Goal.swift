@@ -31,7 +31,7 @@ final class Seek: Goal {
     func move(boid:Boid, toPoint destination:CGPoint) {
         let goalThreshhold: CGFloat = boid.radius
         
-        guard boid.position.distance(from: destination) > goalThreshhold else {
+        guard !boid.position.nearlyEqual(to: destination, epsilon: goalThreshhold) else {
             boid.currentSpeed = boid.maximumFlockSpeed
             boid.goals = boid.goals.filter() { $0 as? Seek !== self }
             return
