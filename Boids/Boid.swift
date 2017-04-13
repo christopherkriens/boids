@@ -21,9 +21,10 @@ class Boid: SKSpriteNode {
     private var perceivedCenter = CGPoint.zero
     private var perceivedDirection = CGPoint.zero
     
-    var radius: CGFloat {
-        return min(self.size.width, self.size.height)
-    }
+    var radius: CGFloat = 0
+    var neighborhoodSize:CGFloat = 0
+
+// MARK: Initialization
 
     override init(texture: SKTexture?, color: UIColor, size: CGSize) {
         self.currentSpeed = maximumFlockSpeed
@@ -36,12 +37,18 @@ class Boid: SKSpriteNode {
         self.name = "boid"
 
         self.behaviors = [Cohesion(intensity: 0.01), Separation(intensity: 0.02), Alignment(intensity: 0.2), Bound()]
-        self.goals = []
+        self.neighborhoodSize = self.radius * 4
+        self.radius = min(self.size.width, self.size.height)
+
+        // Possible enhancement; Modify the local boid's perception of the flock to
+        // remove himself from it.  This way we don't always have to consider it.
     }
     
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+    
+    // MARK: Goals
     
     func seek(to point:CGPoint) {
         self.destination = point
@@ -52,25 +59,15 @@ class Boid: SKSpriteNode {
         self.destination = point
         self.goals.append(Evade())
     }
+    
+    // MARK: Updates
 
     func updateBoid(withinFlock flock: [Boid], frame: CGRect) {
-
-        self.perceivedCenter = CGPoint.zero
-        self.perceivedDirection = CGPoint.zero
-
-        let neighborhoodSize:CGFloat = self.radius * 4
-        var boidsConsidered = 0
-        for flockBoid in flock {
-            guard flockBoid != self else { continue }
-            if self.position.distance(from: flockBoid.position) < neighborhoodSize {
-                self.perceivedCenter += flockBoid.position
-                self.perceivedDirection += flockBoid.velocity
-                boidsConsidered += 1
-            }
-        }
-        if boidsConsidered > 1 {
-            self.perceivedCenter /= CGFloat(boidsConsidered)
-            self.perceivedDirection /= CGFloat(boidsConsidered)
+        let neighbors = self.findNeighbors(inFlock: flock)
+        
+        if neighbors.count > 1 {
+            self.perceivedDirection = (neighbors.reduce(CGPoint.zero) { $0 + $1.velocity }) / CGFloat(neighbors.count)
+            self.perceivedCenter = (neighbors.reduce(CGPoint.zero) { $0 + $1.position }) / CGFloat(neighbors.count)
         } else {
             self.perceivedCenter = (flock.reduce(CGPoint.zero) { $0 + $1.position }) / CGFloat(flock.count)
             self.perceivedCenter -= self.position / CGFloat(flock.count)
@@ -123,6 +120,8 @@ class Boid: SKSpriteNode {
         self.updatePosition(frame: frame)
     }
 
+    // MARK: Private
+    
     private func updatePosition(frame: CGRect) {
         let momentum: CGFloat = 5
         
@@ -163,6 +162,18 @@ class Boid: SKSpriteNode {
             let unitVector = self.velocity / vector
             self.velocity = unitVector * self.currentSpeed
         }
+    }
+    
+    private func findNeighbors(inFlock flock:[Boid]) -> [Boid] {
+        var neighbors = [Boid]()
+
+        for flockBoid in flock {
+            guard flockBoid != self else { continue }
+            if self.position.distance(from: flockBoid.position) < self.neighborhoodSize {
+                neighbors.append(flockBoid)
+            }
+        }
+        return neighbors
     }
 
     private func rotate() {

@@ -41,9 +41,9 @@ final class Seek: Goal {
 }
 
 /**
- Seek
+ Evade
  
- - This moves the boid toward a point in the frame
+ - This moves the boid away from a point in the frame
  **/
 final class Evade: Goal {
     var point: CGPoint = CGPoint.zero
