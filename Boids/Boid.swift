@@ -17,6 +17,8 @@ class Boid: SKSpriteNode {
     var goals = [Goal]()
     var destination = CGPoint.zero
     
+    let visionAngle: CGFloat = 180
+    
     private var timer: Timer?
     private var perceivedCenter = CGPoint.zero
     private var perceivedDirection = CGPoint.zero
@@ -167,25 +169,35 @@ fileprivate extension Boid {
         
         for flockBoid in flock {
             guard flockBoid != self else { continue }
-            if self.position.distance(from: flockBoid.position) < self.neighborhoodSize {
-                let visionAngle: CGFloat = 180
-                let lowerBound = flockBoid.velocity.rotate(aroundOrigin: flockBoid.position, byDegrees: -visionAngle/2)
-                let upperBound = flockBoid.velocity.rotate(aroundOrigin: flockBoid.position, byDegrees: visionAngle/2)
-                
-                if (lowerBound*flockBoid.velocity) * (lowerBound*upperBound) >= 0 && (upperBound*flockBoid.velocity) * (upperBound*lowerBound) >= 0 {
-                    neighbors.append(flockBoid)
-                }
+            if self.neighbors(boid: flockBoid) {
+                neighbors.append(flockBoid)
             }
         }
         return neighbors
+    }
+    
+    /**
+     A boid considers another boid a neighbor if it is within a certain 
+     distance and is able to perceive it within a 180º field of vison.
+     */
+    func neighbors(boid: Boid) -> Bool {
+        if self.position.distance(from: boid.position) < self.neighborhoodSize {
+            let lowerBound = boid.velocity.rotate(aroundOrigin: boid.position, byDegrees: -self.visionAngle/2)
+            let upperBound = boid.velocity.rotate(aroundOrigin: boid.position, byDegrees: self.visionAngle/2)
+            
+            if (lowerBound*boid.velocity) * (lowerBound*upperBound) >= 0 && (upperBound*boid.velocity) * (upperBound*lowerBound) >= 0 {
+                return true
+            }
+        }
+        return false
     }
     
     func rotate() {
         let currentIdealDirection = CGFloat(-atan2(Double(velocity.x), Double(velocity.y)))
         self.zRotation = currentIdealDirection + CGFloat(GLKMathDegreesToRadians(90))
         
+        // flipping functionality; gets weird when moving vertically so disabled
         /*  if self.velocity.x < 0 {
-         // flipping
          let flip = SKAction.scaleX(to: -1, duration: 0.05)
          self.setScale(1.0)
          self.run(flip)
