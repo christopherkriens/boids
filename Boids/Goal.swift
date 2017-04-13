@@ -51,7 +51,7 @@ final class Evade: Goal {
     func move(boid:Boid, fromPoint destination:CGPoint) {
         let fearThreshold: CGFloat = boid.radius * 4
 
-        if boid.position.distance(from: destination) < fearThreshold {
+        if boid.position.nearlyEqual(to: destination, epsilon: fearThreshold) {
             boid.velocity = -(destination - boid.position)
         } else {
             boid.goals = boid.goals.filter() { $0 as? Evade !== self }

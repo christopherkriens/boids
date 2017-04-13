@@ -22,6 +22,17 @@ extension CGPoint {
         return atan2(y, x)
     }
     
+    public func rotate(aroundOrigin origin: CGPoint, byDegrees degrees: CGFloat) -> CGPoint {
+        let dx = self.x - origin.x
+        let dy = self.y - origin.y
+        let radius = sqrt(dx * dx + dy * dy)
+        let azimuth = atan2(dy, dx)
+        let newAzimuth = azimuth + degrees.degreesToRadians
+        let x = origin.x + radius * CoreGraphics.cos(newAzimuth)
+        let y = origin.y + radius * CoreGraphics.sin(newAzimuth)
+        return CGPoint(x: x, y: y)
+    }
+    
     public func distance(from point: CGPoint) -> CGFloat {
         return (self - point).length
     }
@@ -61,7 +72,7 @@ public func - (left: CGPoint, right: CGPoint) -> CGPoint {
     return CGPoint(x: left.x - right.x, y: left.y - right.y)
 }
 
-public func * (left: CGPoint, right: CGPoint) -> CGFloat {
+public func * (left: CGPoint, right: CGPoint) -> CGFloat { // dot product
     return left.x * right.x + left.y * right.y
 }
 

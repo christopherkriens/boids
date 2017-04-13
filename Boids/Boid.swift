@@ -36,10 +36,10 @@ class Boid: SKSpriteNode {
         self.zPosition = 2
         self.name = "boid"
 
-        self.behaviors = [Cohesion(intensity: 0.01), Separation(intensity: 0.02), Alignment(intensity: 0.2), Bound()]
-        self.neighborhoodSize = self.radius * 4
+        self.behaviors = [Cohesion(intensity: 0.01), Separation(intensity: 0.02), Alignment(intensity: 0.1), Bound()]
         self.radius = min(self.size.width, self.size.height)
-
+        self.neighborhoodSize = self.radius * 4
+        
         // Possible enhancement; Modify the local boid's perception of the flock to
         // remove himself from it.  This way we don't always have to consider it.
     }
@@ -163,14 +163,23 @@ class Boid: SKSpriteNode {
             self.velocity = unitVector * self.currentSpeed
         }
     }
-    
+
     private func findNeighbors(inFlock flock:[Boid]) -> [Boid] {
         var neighbors = [Boid]()
 
         for flockBoid in flock {
             guard flockBoid != self else { continue }
             if self.position.distance(from: flockBoid.position) < self.neighborhoodSize {
-                neighbors.append(flockBoid)
+                let visionAngle: CGFloat = 180
+                let lowerBound = flockBoid.velocity.rotate(aroundOrigin: flockBoid.position, byDegrees: -visionAngle/2)
+                let upperBound = flockBoid.velocity.rotate(aroundOrigin: flockBoid.position, byDegrees: visionAngle/2)
+                
+                if (lowerBound*flockBoid.velocity) * (lowerBound*upperBound) >= 0 && (upperBound*flockBoid.velocity) * (upperBound*lowerBound) >= 0 {
+                    // it's inside i guess
+                    neighbors.append(flockBoid)
+                }
+                //if(AxB * AxC >= 0 && CxB * CxA >=0)
+                //then B is definitely inside A and C
             }
         }
         return neighbors
