@@ -9,12 +9,16 @@
 import SpriteKit
 
 class BoidScene: SKScene {
-    let numberOfBoids = 40
+    let numberOfBoids = 35
     var flock = [Boid]()
     var moving = false
     
     override func didMove(to view: SKView) {
-        self.backgroundColor = SKColor(colorLiteralRed: (2/255), green: (125/255), blue: (145/255), alpha: 1.0)
+        self.backgroundColor = SKColor(colorLiteralRed: (2/255), green: (80/255), blue: (145/255), alpha: 1.0)
+        let background = SKSpriteNode(texture: SKTexture(imageNamed:"bg.jpg"), color: .blue, size: self.size)
+        background.anchorPoint = CGPoint(x: 0.5, y: 0.5)
+        background.position = CGPoint(x:self.size.width/2, y:self.size.height/2)
+       // addChild(background)
         
         for i in 0..<self.numberOfBoids {
             // Create a new boid object
@@ -37,6 +41,7 @@ class BoidScene: SKScene {
             self.flock.append(boid)
             addChild(boid)
         }
+        
     }
     
     

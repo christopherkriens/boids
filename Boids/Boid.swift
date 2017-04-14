@@ -54,12 +54,12 @@ class Boid: SKSpriteNode {
     
     func seek(to point:CGPoint) {
         self.destination = point
-        self.goals.append(Seek())
+        self.goals.append(Seek(intensity: 0.9))
     }
     
     func evade(from point:CGPoint) {
         self.destination = point
-        self.goals.append(Evade())
+        self.goals.append(Evade(intensity: 0.9))
     }
 
     func updateBoid(withinFlock flock: [Boid], frame: CGRect) {
@@ -77,8 +77,9 @@ class Boid: SKSpriteNode {
             self.perceivedDirection = (flock.reduce(CGPoint.zero) { $0 + $1.velocity }) / CGFloat(flock.count)
             self.perceivedDirection -= (self.velocity / CGFloat(flock.count))
 
-            // experimental! accelerate when boid isn't in a group
-            if (self.currentSpeed < self.maximumGoalSpeed) {
+            // experimental! accelerate when boid is outside of any group
+            // they should want to return toward the average group quickly
+            if (self.currentSpeed < self.maximumFlockSpeed+1) {
                 self.currentSpeed *= 1.1
             }
         }
@@ -138,12 +139,13 @@ fileprivate extension Boid {
         //** Goals take priority over flocking behaviors **//
         if self.goals.count > 0 {
             //*** Move toward the average destination of all goals ***//
-            self.velocity += (self.goals.reduce(self.velocity) { $0 + $1.point }) / momentum
+            self.velocity += (self.goals.reduce(self.velocity) { $0 + $1.scaledVelocity }) / momentum
         } else {
             //*** Move the average velocity from each of the behaviors ***//
             self.velocity += (self.behaviors.reduce(self.velocity) { $0 + $1.scaledVelocity }) / momentum
         }
         
+        // Limit the maximum velocity per update
         applySpeedLimit()
         
         // Stay rotated toward the direction of travel
