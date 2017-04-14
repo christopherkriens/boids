@@ -15,6 +15,7 @@ protocol Behavior {
     var intensity: CGFloat { get set }
 
     init(intensity: CGFloat)
+    
     init()
 }
 
@@ -53,7 +54,7 @@ final class Cohesion: Behavior {
     var velocity: CGPoint = CGPoint.zero
     var intensity: CGFloat = 0.0
 
-    func apply(toBoid boid:Boid, inFlock flock:[Boid], withCenterOfMass centerOfMass: CGPoint) {
+    func apply(toBoid boid:Boid, withCenterOfMass centerOfMass: CGPoint) {
         self.velocity = (centerOfMass - boid.position)
     }
 }
@@ -82,20 +83,20 @@ final class Separation: Behavior {
 
 /**
  This behavior applies a tendency for a boid to align its
- direction with the average direction of the entire flock
+ direction with the average direction of the entire flock.
  */
 final class Alignment: Behavior {
     var velocity: CGPoint = CGPoint.zero
     var intensity: CGFloat = 0.0
     
-    func apply(toBoid boid:Boid, inFlock flock:[Boid], withAlignment alignment: CGPoint) {
+    func apply(toBoid boid:Boid, withAlignment alignment: CGPoint) {
         self.velocity = (alignment - boid.velocity)
     }
 }
 
 /**
  This behavior applies a tendency for a boid to move away
- from the edges of the screen within a configurable margin
+ from the edges of the screen within a configurable margin.
  */
 final class Bound: Behavior {
     var velocity: CGPoint = CGPoint.zero
@@ -124,6 +125,75 @@ final class Bound: Behavior {
         }
         if boid.position.y > yMaximum {
             self.velocity.y -= borderAversion
+        }
+    }
+}
+
+/**
+ This behavior applies a tendency for a boid to move toward a 
+ particular point.  Seek is a temporary behavior that removes
+ itself from the boid once the goal is reached.
+ */
+final class Seek: Behavior {
+    var intensity: CGFloat = 0.0
+    var velocity: CGPoint = CGPoint.zero
+    
+    func apply(boid:Boid, withPoint destination:CGPoint) {
+        let goalThreshhold: CGFloat = boid.radius
+        
+        // Remove the behavior once the goal has been reached
+        guard !boid.position.nearlyEqual(to: destination, epsilon: goalThreshhold) else {
+            boid.currentSpeed = boid.maximumFlockSpeed
+            boid.behaviors = boid.behaviors.filter() { $0 as? Seek !== self }
+            return
+        }
+        boid.currentSpeed = boid.maximumGoalSpeed
+        self.velocity = (destination - boid.position)
+    }
+}
+
+/**
+ This behavior applies a tendency for a boid to move away from
+ a particular point.  Evade is a temporary behavior that
+ removes itself from the boid once outside of `fearThreshold`.
+ */
+final class Evade: Behavior {
+    var intensity: CGFloat = 0.0
+    var velocity: CGPoint = CGPoint.zero
+    
+    func apply(boid:Boid, withPoint destination:CGPoint) {
+        let fearThreshold: CGFloat = boid.radius * 4
+        
+        // Remove the behavior once the goal has been reached
+        guard boid.position.nearlyEqual(to: destination, epsilon: fearThreshold) else {
+            boid.currentSpeed = boid.maximumFlockSpeed
+            boid.behaviors = boid.behaviors.filter() { $0 as? Evade !== self }
+            return
+        }
+        
+        self.velocity = -(destination - boid.position)
+        boid.currentSpeed = boid.maximumGoalSpeed
+    }
+}
+
+
+final class Panic: Behavior {
+    var intensity: CGFloat = 0.0
+    var velocity: CGPoint = CGPoint.zero
+    
+    func apply(boid:Boid, neighbors:[Boid], withCenterOfMass centerOfMass: CGPoint) {
+        
+        // Remove the behavior once the goal has been reached
+        guard neighbors.count < 2 else {
+            boid.currentSpeed = boid.maximumFlockSpeed
+            boid.behaviors = boid.behaviors.filter() { $0 as? Panic !== self }
+            return
+        }
+        
+        self.velocity -= (centerOfMass - boid.position)
+        
+        if boid.currentSpeed < boid.maximumFlockSpeed+1 {
+            boid.currentSpeed *= 1.1
         }
     }
 }

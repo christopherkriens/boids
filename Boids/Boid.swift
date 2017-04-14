@@ -14,8 +14,8 @@ class Boid: SKSpriteNode {
     var currentSpeed: CGFloat
     var velocity = CGPoint.zero
     var behaviors = [Behavior]()
-    var goals = [Goal]()
     var destination = CGPoint.zero
+    let momentum: CGFloat = 5
     
     let visionAngle: CGFloat = 180
     
@@ -26,6 +26,7 @@ class Boid: SKSpriteNode {
     var radius: CGFloat = 0
     var neighborhoodSize:CGFloat = 0
 
+    
     // MARK: - Initialization
 
     override init(texture: SKTexture?, color: UIColor, size: CGSize) {
@@ -50,100 +51,74 @@ class Boid: SKSpriteNode {
         fatalError("init(coder:) has not been implemented")
     }
     
+    
     // MARK: - Updates
     
     func seek(to point:CGPoint) {
         self.destination = point
-        self.goals.append(Seek(intensity: 0.9))
+        self.behaviors.append(Seek(intensity: 0.9))
     }
     
     func evade(from point:CGPoint) {
         self.destination = point
-        self.goals.append(Evade(intensity: 0.9))
+        self.behaviors.append(Evade(intensity: 0.9))
     }
 
     func updateBoid(withinFlock flock: [Boid], frame: CGRect) {
-        let neighbors = self.findNeighbors(inFlock: flock)
+        let neighborhood = self.findNeighbors(inFlock: flock)
         
-        if neighbors.count > 1 {
-            self.perceivedDirection = (neighbors.reduce(CGPoint.zero) { $0 + $1.velocity }) / CGFloat(neighbors.count)
-            self.perceivedCenter = (neighbors.reduce(CGPoint.zero) { $0 + $1.position }) / CGFloat(neighbors.count)
+        // Update this boid's flock perception within its neighborhood
+        if neighborhood.count > 1 {
+            self.perceivedDirection = (neighborhood.reduce(CGPoint.zero) { $0 + $1.velocity }) / CGFloat(neighborhood.count)
+            self.perceivedCenter = (neighborhood.reduce(CGPoint.zero) { $0 + $1.position }) / CGFloat(neighborhood.count)
             self.currentSpeed = maximumFlockSpeed
-            
+
+        // Boid is on its own and has no neighbors..
         } else {
             self.perceivedCenter = (flock.reduce(CGPoint.zero) { $0 + $1.position }) / CGFloat(flock.count)
             self.perceivedCenter -= self.position / CGFloat(flock.count)
-            
+
             self.perceivedDirection = (flock.reduce(CGPoint.zero) { $0 + $1.velocity }) / CGFloat(flock.count)
             self.perceivedDirection -= (self.velocity / CGFloat(flock.count))
 
-            // experimental! accelerate when boid is outside of any group
-            // they should want to return toward the average group quickly
-            if (self.currentSpeed < self.maximumFlockSpeed+1) {
-                self.currentSpeed *= 1.1
-            }
+            //self.behaviors.append(Panic(intensity: 1.0))
         }
 
-        //** Apply each of the boid's behaviors **//
+        // Apply each of the boid's behaviors
         for behavior in self.behaviors {
             let behaviorClass = String(describing: type(of: behavior))
-    
+            
             switch behaviorClass {
             case String(describing: Cohesion.self):
                 let cohension = behavior as? Cohesion
-                cohension?.apply(toBoid: self, inFlock: flock, withCenterOfMass:self.perceivedCenter)
+                cohension?.apply(toBoid: self, withCenterOfMass:self.perceivedCenter)
                 
             case String(describing: Separation.self):
                 let separation = behavior as? Separation
-                separation?.apply(toBoid: self, inFlock: flock)
+                separation?.apply(toBoid: self, inFlock: neighborhood)
                 
             case String(describing: Alignment.self):
                 let alignment = behavior as? Alignment
-                alignment?.apply(toBoid: self, inFlock: flock, withAlignment: self.perceivedDirection)
+                alignment?.apply(toBoid: self, withAlignment: self.perceivedDirection)
                 
             case String(describing: Bound.self):
                 let bound = behavior as? Bound
                 bound?.apply(toBoid: self, inFrame: frame)
                 
-            default: break
-            }
-        }
-        
-        //** Apply each of the boid's goals **//
-        for goal in self.goals {
-            let goalClass = String(describing: type(of: goal))
-
-            switch goalClass {
             case String(describing: Seek.self):
-                let seek = goal as? Seek
-                seek?.move(boid: self, toPoint: self.destination)
+                let seek = behavior as? Seek
+                seek?.apply(boid: self, withPoint: self.destination)
+                
             case String(describing: Evade.self):
-                let evade = goal as? Evade
-                evade?.move(boid: self, fromPoint: self.destination)
+                let evade = behavior as? Evade
+                evade?.apply(boid: self, withPoint: self.destination)
                 
             default: break
             }
         }
-
-        self.updatePosition(frame: frame)
-    }
-}
-
-
-// MARK: - Private
-fileprivate extension Boid {
-    
-    func updatePosition(frame: CGRect) {
-        let momentum: CGFloat = 5
         
-        //** Goals take priority over flocking behaviors **//
-        if self.goals.count > 0 {
-            //*** Move toward the average destination of all goals ***//
-            self.velocity += (self.goals.reduce(self.velocity) { $0 + $1.scaledVelocity }) / momentum
-        } else {
-            //*** Move the average velocity from each of the behaviors ***//
-            self.velocity += (self.behaviors.reduce(self.velocity) { $0 + $1.scaledVelocity }) / momentum
-        }
+        // Sum the velocities provided by each of the behaviors
+        self.velocity += (self.behaviors.reduce(self.velocity) { $0 + $1.scaledVelocity }) / self.momentum
         
         // Limit the maximum velocity per update
         applySpeedLimit()
@@ -151,14 +126,19 @@ fileprivate extension Boid {
         // Stay rotated toward the direction of travel
         rotate()
         
+        // Update the position
         self.position += self.velocity
     }
+}
+
+
+// MARK: - Private
+fileprivate extension Boid {
     
+    /**
+     Applies the boid's current speed limit to its velocity
+    */
     func applySpeedLimit() {
-        if self.goals.count > 0 {
-            currentSpeed = maximumGoalSpeed
-        }
-        
         let vector = self.velocity.length
         if (vector > self.currentSpeed) {
             let unitVector = self.velocity / vector
@@ -166,6 +146,12 @@ fileprivate extension Boid {
         }
     }
     
+    /**
+     Examines an array of boids and returns a subarray with boids that are considered neighbors.
+     - parameters:
+        - inFlock: The array of boids for which potential neighbors can be found.
+     - returns: A subarray with boids that are considered neighbors.  Current boid will never be included.
+     */
     func findNeighbors(inFlock flock:[Boid]) -> [Boid] {
         var neighbors = [Boid]()
         
@@ -181,6 +167,9 @@ fileprivate extension Boid {
     /**
      A boid considers another boid a neighbor if it is within a certain 
      distance and is able to perceive it within a 180º field of vison.
+     - parameters:
+        - boid: A boid to test against
+     - returns: `Bool` - Whether or not this boid is a neighbor to the provided boid.
      */
     func neighbors(boid: Boid) -> Bool {
         if self.position.distance(from: boid.position) < self.neighborhoodSize {
@@ -195,24 +184,22 @@ fileprivate extension Boid {
     }
     
     func rotate() {
-        let currentIdealDirection = CGFloat(-atan2(Double(velocity.x), Double(velocity.y)))
-        self.zRotation = currentIdealDirection + CGFloat(GLKMathDegreesToRadians(90))
+        self.zRotation = CGFloat(-atan2(Double(velocity.x), Double(velocity.y))) + CGFloat(GLKMathDegreesToRadians(90))
         
-        // flipping functionality; gets weird when moving vertically so disabled
-        /*  if self.velocity.x < 0 {
-         let flip = SKAction.scaleX(to: -1, duration: 0.05)
-         self.setScale(1.0)
-         self.run(flip)
-         self.zRotation += CGFloat(GLKMathDegreesToRadians(180))
+        // flipping functionality; looks weird when moving vertically so disabled
+        // considering some improvements
+        /* if self.velocity.x < 0 {
+            let flip = SKAction.scaleX(to: -1, duration: 0.05)
+            self.setScale(1.0)
+            self.run(flip)
+            self.zRotation += CGFloat(GLKMathDegreesToRadians(180))
          } else {
-         let flip = SKAction.scaleX(to: 1, duration: 0.1)
-         self.setScale(1.0)
-         self.run(flip)
+            let flip = SKAction.scaleX(to: 1, duration: 0.1)
+            self.setScale(1.0)
+            self.run(flip)
          }*/
     }
 }
-
-
 
 
 extension Boid {

@@ -14,7 +14,6 @@
 		E279CBEA1E949A5A00A535DE /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = E279CBE81E949A5A00A535DE /* Main.storyboard */; };
 		E279CBEC1E949A5A00A535DE /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E279CBEB1E949A5A00A535DE /* Assets.xcassets */; };
 		E279CBEF1E949A5A00A535DE /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = E279CBED1E949A5A00A535DE /* LaunchScreen.storyboard */; };
-		E293E53A1E9D6C6B00D6CDC4 /* Goal.swift in Sources */ = {isa = PBXBuildFile; fileRef = E293E5391E9D6C6B00D6CDC4 /* Goal.swift */; };
 		E293E53C1E9ED71200D6CDC4 /* CGFloat.swift in Sources */ = {isa = PBXBuildFile; fileRef = E293E53B1E9ED71200D6CDC4 /* CGFloat.swift */; };
 		E293E53E1E9EE09500D6CDC4 /* blue@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = E293E53D1E9EE09500D6CDC4 /* blue@2x.png */; };
 		E293E5401E9F1B2300D6CDC4 /* tangfin@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = E293E53F1E9F1B2300D6CDC4 /* tangfin@2x.png */; };
@@ -34,7 +33,6 @@
 		E279CBEB1E949A5A00A535DE /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		E279CBEE1E949A5A00A535DE /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		E279CBF01E949A5A00A535DE /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		E293E5391E9D6C6B00D6CDC4 /* Goal.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Goal.swift; sourceTree = "<group>"; };
 		E293E53B1E9ED71200D6CDC4 /* CGFloat.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CGFloat.swift; sourceTree = "<group>"; };
 		E293E53D1E9EE09500D6CDC4 /* blue@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "blue@2x.png"; sourceTree = "<group>"; };
 		E293E53F1E9F1B2300D6CDC4 /* tangfin@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "tangfin@2x.png"; sourceTree = "<group>"; };
@@ -79,7 +77,6 @@
 				E279CBE61E949A5A00A535DE /* BoidViewController.swift */,
 				E2FDA0451E9546B3007C8F90 /* Boid.swift */,
 				E2FDA0471E954B1E007C8F90 /* Behavior.swift */,
-				E293E5391E9D6C6B00D6CDC4 /* Goal.swift */,
 				E2FDA04B1E956B10007C8F90 /* Extensions */,
 				E279CBE81E949A5A00A535DE /* Main.storyboard */,
 				E279CBEB1E949A5A00A535DE /* Assets.xcassets */,
@@ -185,7 +182,6 @@
 				E2FDA0461E9546B3007C8F90 /* Boid.swift in Sources */,
 				E2FDA04D1E956B2D007C8F90 /* CGPoint.swift in Sources */,
 				E2FDA0481E954B1E007C8F90 /* Behavior.swift in Sources */,
-				E293E53A1E9D6C6B00D6CDC4 /* Goal.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
