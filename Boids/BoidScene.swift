@@ -9,7 +9,7 @@
 import SpriteKit
 
 class BoidScene: SKScene {
-    let numberOfBoids = 35
+    let numberOfBoids = 80
     var flock = [Boid]()
     var moving = false
     
@@ -31,8 +31,8 @@ class BoidScene: SKScene {
             
             // Assign a randomized speed for flocking and goals
             // This just creates a little variety in flock movement
-            let randomFlockSpeed = CGFloat.random(min: 2, max: 3)
-            let randomGoalSpeed = CGFloat.random(min: 5, max: 6)
+            let randomFlockSpeed = CGFloat.random(min: 3, max: 4)
+            let randomGoalSpeed = CGFloat.random(min: 6, max: 7)
             boid.maximumFlockSpeed = randomFlockSpeed
             boid.maximumGoalSpeed = randomGoalSpeed
             

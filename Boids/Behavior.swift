@@ -106,7 +106,7 @@ final class Bound: Behavior {
         self.velocity = CGPoint.zero
 
         let borderMargin:CGFloat = 100
-        let borderAversion: CGFloat = boid.currentSpeed / 3
+        let borderAversion: CGFloat = boid.currentSpeed
 
         let xMinimum = borderMargin
         let yMinimum = borderMargin
@@ -160,17 +160,17 @@ final class Seek: Behavior {
 final class Evade: Behavior {
     var intensity: CGFloat = 0.0
     var velocity: CGPoint = CGPoint.zero
-    
+
     func apply(boid:Boid, withPoint destination:CGPoint) {
         let fearThreshold: CGFloat = boid.radius * 4
-        
+
         // Remove the behavior once the goal has been reached
         guard boid.position.nearlyEqual(to: destination, epsilon: fearThreshold) else {
             boid.currentSpeed = boid.maximumFlockSpeed
             boid.behaviors = boid.behaviors.filter() { $0 as? Evade !== self }
             return
         }
-        
+
         self.velocity = -(destination - boid.position)
         boid.currentSpeed = boid.maximumGoalSpeed
     }
@@ -181,18 +181,23 @@ final class Panic: Behavior {
     var intensity: CGFloat = 0.0
     var velocity: CGPoint = CGPoint.zero
     
-    func apply(boid:Boid, neighbors:[Boid], withCenterOfMass centerOfMass: CGPoint) {
+    func apply(boid:Boid, neighbors:[Boid], nearestNeighbor: Boid?) {
+        
+        // Make sure a neighbor was sent and has a position
+        guard let nearestNeighborPosition = nearestNeighbor?.position else {
+            return
+        }
         
         // Remove the behavior once the goal has been reached
-        guard neighbors.count < 2 else {
+        guard neighbors.count <= 2 else {
             boid.currentSpeed = boid.maximumFlockSpeed
             boid.behaviors = boid.behaviors.filter() { $0 as? Panic !== self }
             return
         }
         
-        self.velocity -= (centerOfMass - boid.position)
+        self.velocity = (nearestNeighborPosition - boid.position)
         
-        if boid.currentSpeed < boid.maximumFlockSpeed+1 {
+        if boid.currentSpeed < boid.maximumGoalSpeed {
             boid.currentSpeed *= 1.1
         }
     }

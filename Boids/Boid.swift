@@ -1,6 +1,10 @@
 //
 //  Boid.swift
-//  Boids 🐠🐠🐠
+//  Boids
+//
+//   🐠 🐠 🐠
+//  🐠 🐠 🐠
+//    🐠🐠 🐠
 //
 //  Created by Christopher Kriens on 4/5/17.
 //
@@ -17,14 +21,18 @@ class Boid: SKSpriteNode {
     var destination = CGPoint.zero
     let momentum: CGFloat = 5
     
-    let visionAngle: CGFloat = 180
+    let visionAngle: CGFloat = 180 // bug?? this only seems to work @ 180
     
-    private var timer: Timer?
     private var perceivedCenter = CGPoint.zero
     private var perceivedDirection = CGPoint.zero
     
-    var radius: CGFloat = 0
-    var neighborhoodSize:CGFloat = 0
+    lazy var radius: CGFloat = {
+        return min(self.size.width, self.size.height)
+    }()
+    
+    lazy var neighborhoodSize:CGFloat = {
+        return self.radius * 4
+    }()
 
     
     // MARK: - Initialization
@@ -39,12 +47,10 @@ class Boid: SKSpriteNode {
         self.zPosition = 2
         self.name = "boid"
 
-        self.behaviors = [Cohesion(intensity: 0.01), Separation(intensity: 0.02), Alignment(intensity: 0.1), Bound(intensity:1.0)]
-        self.radius = min(self.size.width, self.size.height)
-        self.neighborhoodSize = self.radius * 4
+        self.behaviors = [Cohesion(intensity: 0.01), Separation(intensity: 0.02), Alignment(intensity: 0.2), Bound(intensity:0.4)]
         
         // Possible enhancement; Modify the local boid's perception of the flock to
-        // remove himself from it.  This way we don't always have to consider it.
+        // remove himself from it.  This way we don't always have to remove it.
     }
     
     required init?(coder aDecoder: NSCoder) {
@@ -53,12 +59,12 @@ class Boid: SKSpriteNode {
     
     
     // MARK: - Updates
-    
+
     func seek(to point:CGPoint) {
         self.destination = point
         self.behaviors.append(Seek(intensity: 0.9))
     }
-    
+
     func evade(from point:CGPoint) {
         self.destination = point
         self.behaviors.append(Evade(intensity: 0.9))
@@ -73,15 +79,12 @@ class Boid: SKSpriteNode {
             self.perceivedCenter = (neighborhood.reduce(CGPoint.zero) { $0 + $1.position }) / CGFloat(neighborhood.count)
             self.currentSpeed = maximumFlockSpeed
 
-        // Boid is on its own and has no neighbors..
+        // Boid is on its own and has no neighbors 😭
         } else {
-            self.perceivedCenter = (flock.reduce(CGPoint.zero) { $0 + $1.position }) / CGFloat(flock.count)
-            self.perceivedCenter -= self.position / CGFloat(flock.count)
-
-            self.perceivedDirection = (flock.reduce(CGPoint.zero) { $0 + $1.velocity }) / CGFloat(flock.count)
-            self.perceivedDirection -= (self.velocity / CGFloat(flock.count))
-
-            //self.behaviors.append(Panic(intensity: 1.0))
+            // only add panic behavior once
+            if !self.behaviors.contains(where: { $0 is Panic }) {
+                self.behaviors.append(Panic(intensity: 0.5))
+            }
         }
 
         // Apply each of the boid's behaviors
@@ -112,6 +115,10 @@ class Boid: SKSpriteNode {
             case String(describing: Evade.self):
                 let evade = behavior as? Evade
                 evade?.apply(boid: self, withPoint: self.destination)
+            
+            case String(describing: Panic.self):
+                let panic = behavior as? Panic
+                panic?.apply(boid:self, neighbors:neighborhood, nearestNeighbor: nearestNeighbor(flock: flock))
                 
             default: break
             }
@@ -126,7 +133,7 @@ class Boid: SKSpriteNode {
         // Stay rotated toward the direction of travel
         rotate()
         
-        // Update the position
+        // Update the position on screen
         self.position += self.velocity
     }
 }
@@ -182,10 +189,24 @@ fileprivate extension Boid {
         }
         return false
     }
-    
-    func rotate() {
-        self.zRotation = CGFloat(-atan2(Double(velocity.x), Double(velocity.y))) + CGFloat(GLKMathDegreesToRadians(90))
+
+    func nearestNeighbor(flock: [Boid]) -> Boid? {
+        guard var nearestBoid = flock.first else {
+            return nil
+        }
         
+        for flockBoid in flock {
+            if self.position.distance(from: flockBoid.position) < self.position.distance(from: nearestBoid.position) {
+                nearestBoid = flockBoid
+            }
+        }
+        return nearestBoid
+    }
+
+
+    func rotate() {
+        self.zRotation = CGFloat(-atan2(Double(velocity.x), Double(velocity.y))) + CGFloat(90).degreesToRadians
+
         // flipping functionality; looks weird when moving vertically so disabled
         // considering some improvements
         /* if self.velocity.x < 0 {
