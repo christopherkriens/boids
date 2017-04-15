@@ -19,10 +19,10 @@ class BoidViewController: UIViewController {
             let scene = BoidScene(size: self.view.bounds.size)
             scene.scaleMode = .aspectFit
                 
-            // Present the scene
+            // 🌎 Present the scene
             view.presentScene(scene)
 
-            // Configure
+            // ⚙️🔧 Configure a few SKView options
             view.ignoresSiblingOrder = true
             view.showsFPS = true
             view.showsNodeCount = false

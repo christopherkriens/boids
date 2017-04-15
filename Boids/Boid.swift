@@ -21,7 +21,7 @@ class Boid: SKSpriteNode {
     var destination = CGPoint.zero
     let momentum: CGFloat = 5
     
-    let visionAngle: CGFloat = 180 // bug?? this only seems to work @ 180
+    let visionAngle: CGFloat = 180
     
     private var perceivedCenter = CGPoint.zero
     private var perceivedDirection = CGPoint.zero
@@ -61,11 +61,17 @@ class Boid: SKSpriteNode {
     // MARK: - Updates
 
     func seek(to point:CGPoint) {
+        // 🗑 Remove any existing Seek behaviors
+        self.behaviors = self.behaviors.filter() { !($0 is Seek) }
+        
         self.destination = point
         self.behaviors.append(Seek(intensity: 0.9))
     }
 
     func evade(from point:CGPoint) {
+        // 🗑 Remove any existing Evade behaviors
+        self.behaviors = self.behaviors.filter() { !($0 is Evade) }
+        
         self.destination = point
         self.behaviors.append(Evade(intensity: 0.9))
     }
@@ -73,21 +79,20 @@ class Boid: SKSpriteNode {
     func updateBoid(withinFlock flock: [Boid], frame: CGRect) {
         let neighborhood = self.findNeighbors(inFlock: flock)
         
-        // Update this boid's flock perception within its neighborhood
-        if neighborhood.count > 1 {
+        // 🐠 Update this boid's flock perception within its neighborhood
+        if neighborhood.count > 0 {
             self.perceivedDirection = (neighborhood.reduce(CGPoint.zero) { $0 + $1.velocity }) / CGFloat(neighborhood.count)
             self.perceivedCenter = (neighborhood.reduce(CGPoint.zero) { $0 + $1.position }) / CGFloat(neighborhood.count)
             self.currentSpeed = maximumFlockSpeed
 
-        // Boid is on its own and has no neighbors 😭
+        // 😭 Boid is on its own and has no neighbors
         } else {
-            // only add panic behavior once
-            if !self.behaviors.contains(where: { $0 is Panic }) {
-                self.behaviors.append(Panic(intensity: 0.5))
+            if !self.behaviors.contains(where: { $0 is Rejoin }) {
+                self.behaviors.append(Rejoin(intensity: 0.5))
             }
         }
 
-        // Apply each of the boid's behaviors
+        // ✏️ Apply each of the boid's behaviors
         for behavior in self.behaviors {
             let behaviorClass = String(describing: type(of: behavior))
             
@@ -116,24 +121,24 @@ class Boid: SKSpriteNode {
                 let evade = behavior as? Evade
                 evade?.apply(boid: self, withPoint: self.destination)
             
-            case String(describing: Panic.self):
-                let panic = behavior as? Panic
+            case String(describing: Rejoin.self):
+                let panic = behavior as? Rejoin
                 panic?.apply(boid:self, neighbors:neighborhood, nearestNeighbor: nearestNeighbor(flock: flock))
                 
             default: break
             }
         }
         
-        // Sum the velocities provided by each of the behaviors
+        // ➕ Sum the velocities provided by each of the behaviors
         self.velocity += (self.behaviors.reduce(self.velocity) { $0 + $1.scaledVelocity }) / self.momentum
         
-        // Limit the maximum velocity per update
+        // 🚧 Limit the maximum velocity per update
         applySpeedLimit()
         
-        // Stay rotated toward the direction of travel
+        // ⤴️ Stay rotated toward the direction of travel
         rotate()
         
-        // Update the position on screen
+        // 📱 Update the position on screen
         self.position += self.velocity
     }
 }
@@ -190,6 +195,12 @@ fileprivate extension Boid {
         return false
     }
 
+    /**
+     Finds the boid with the closest position within the given flock.
+     - parameters:
+        - flock: A flock of boids to search
+     - returns: `Boid?` - The closest boid.  Can be nil.
+     */
     func nearestNeighbor(flock: [Boid]) -> Boid? {
         guard var nearestBoid = flock.first else {
             return nil

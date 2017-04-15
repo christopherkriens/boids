@@ -1,7 +1,7 @@
 import UIKit
 import GameplayKit
 
-// Algorithm : http://www.kfish.org/boids/pseudocode.html
+// Main Behaviors Algorithm : http://www.kfish.org/boids/pseudocode.html
 
 /**
  All behaviors must adopt this protocol.  Behaviors are expected to calculate
@@ -141,7 +141,7 @@ final class Seek: Behavior {
     func apply(boid:Boid, withPoint destination:CGPoint) {
         let goalThreshhold: CGFloat = boid.radius
         
-        // Remove the behavior once the goal has been reached
+        // Remove this behavior once the goal has been reached 🏁
         guard !boid.position.nearlyEqual(to: destination, epsilon: goalThreshhold) else {
             boid.currentSpeed = boid.maximumFlockSpeed
             boid.behaviors = boid.behaviors.filter() { $0 as? Seek !== self }
@@ -164,7 +164,7 @@ final class Evade: Behavior {
     func apply(boid:Boid, withPoint destination:CGPoint) {
         let fearThreshold: CGFloat = boid.radius * 4
 
-        // Remove the behavior once the goal has been reached
+        // Remove this behavior once the goal has been reached 🏁
         guard boid.position.nearlyEqual(to: destination, epsilon: fearThreshold) else {
             boid.currentSpeed = boid.maximumFlockSpeed
             boid.behaviors = boid.behaviors.filter() { $0 as? Evade !== self }
@@ -176,8 +176,12 @@ final class Evade: Behavior {
     }
 }
 
-
-final class Panic: Behavior {
+/**
+ This behavior applies a tendency for a boid to move toward
+ a particular point.  Rejoin is a temporary behavior that
+ removes itself from the boid attains the minimum neighbo.
+ */
+final class Rejoin: Behavior {
     var intensity: CGFloat = 0.0
     var velocity: CGPoint = CGPoint.zero
     
@@ -188,16 +192,16 @@ final class Panic: Behavior {
             return
         }
         
-        // Remove the behavior once the goal has been reached
-        guard neighbors.count <= 2 else {
+        // Remove this behavior once the goal has been reached 🏁
+        guard neighbors.count <= 1 else {
             boid.currentSpeed = boid.maximumFlockSpeed
-            boid.behaviors = boid.behaviors.filter() { $0 as? Panic !== self }
+            boid.behaviors = boid.behaviors.filter() { $0 as? Rejoin !== self }
             return
         }
         
         self.velocity = (nearestNeighborPosition - boid.position)
         
-        if boid.currentSpeed < boid.maximumGoalSpeed {
+        if boid.currentSpeed < (boid.maximumFlockSpeed+boid.maximumGoalSpeed)/2 {
             boid.currentSpeed *= 1.1
         }
     }
