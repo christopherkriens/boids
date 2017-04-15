@@ -2,13 +2,13 @@
 
 Two dimensional implementation of Boids using SpriteKit and Swift 3.
 
-Now with more emotes! 🐠
+Now with more emotes! 🐟 🐡 🦄 🐔
 
 Boids is an algorithm for simulating natural group flocking behavior.  Flocking is an emergent behavior accomplished by applying a set of simple rules on autonomous agents, called "boids".
 
 Rules
 -----
-The standard flocking rules are:
+The standard flocking rules:
 
 **1. Cohesion** - Steer toward the average position of nearby agents
 
@@ -17,7 +17,7 @@ The standard flocking rules are:
 **3. Separation** - Steer away from agents that are close to avoid crowding
 
 
-In addition to these flocking rules, I've added two:
+In addition to the sttandard flocking rules, I've added two:
 
 **4. Bound** - Steer away from the bounds of the device screen to keep agents in view
 
