@@ -3,8 +3,7 @@
 //  Boids
 //
 //  Created by Christopher Kriens on 4/4/17.
-//
-//
+
 
 import SpriteKit
 
@@ -14,12 +13,16 @@ class BoidScene: SKScene {
     var shouldIgnoreTouchEnded = false
     
     override func didMove(to view: SKView) {
-        self.backgroundColor = SKColor(colorLiteralRed: (2/255), green: (80/255), blue: (145/255), alpha: 1.0)
+        self.backgroundColor = SKColor.white
         
         for i in 0..<self.numberOfBoids {
             // Create a new boid object
-            let boid = Boid(texture: SKTexture(imageNamed:"tang"), color: .white, size: CGSize(width: 40, height: 32))
+            let boid = Boid()//texture: SKTexture(imageNamed:"tang"), color: .white, size: CGSize(width: 40, height: 32))
             
+            let boidlabel = SKLabelNode(text: "🐠") // 🐠 🐟 🐡 🦄 🐔 🚜
+            boidlabel.fontSize = 36
+            boid.addChild(boidlabel)
+
             // 🎲 Position the boid at a random screen location to start
             let randomStartPositionX = round(CGFloat.random(min: 0, max: size.width))
             let randomStartPositionY = round(CGFloat.random(min: 0, max: size.height))
@@ -31,6 +34,7 @@ class BoidScene: SKScene {
             boid.maximumFlockSpeed = randomFlockSpeed
             boid.maximumGoalSpeed = randomGoalSpeed
             
+            boid.size = CGSize(width: boidlabel.fontSize, height: boidlabel.fontSize)
             boid.name = "boid-\(i)"
             
             self.flock.append(boid)

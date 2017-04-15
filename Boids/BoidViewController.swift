@@ -3,9 +3,6 @@
 //  Boids
 //
 //  Created by Christopher Kriens on 4/4/17.
-//
-//
-// Algorithm: http://www.kfish.org/boids/pseudocode.html
 
 import UIKit
 import SpriteKit
@@ -22,9 +19,9 @@ class BoidViewController: UIViewController {
             // 🌎 Present the scene
             view.presentScene(scene)
 
-            // ⚙️🔧 Configure a few SKView options
+            // 🔧 Configure a few SKView options
             view.ignoresSiblingOrder = true
-            view.showsFPS = true
+            view.showsFPS = false
             view.showsNodeCount = false
         }
     }

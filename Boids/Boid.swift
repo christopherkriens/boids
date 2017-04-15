@@ -2,13 +2,11 @@
 //  Boid.swift
 //  Boids
 //
-//   🐠 🐠 🐠
-//  🐠 🐠 🐠
-//    🐠🐠 🐠
+//    🐠
+//  🐠
+//   🐠
 //
 //  Created by Christopher Kriens on 4/5/17.
-//
-//
 
 import SpriteKit
 
@@ -208,7 +206,7 @@ fileprivate extension Boid {
     }
 
     func rotate() {
-        self.zRotation = CGFloat(-atan2(Double(velocity.x), Double(velocity.y))) + CGFloat(90).degreesToRadians
+        self.zRotation = CGFloat(-atan2(Double(velocity.x), Double(velocity.y))) - CGFloat(90).degreesToRadians
 
         // flipping functionality; looks weird when moving vertically so disabled
         // considering some improvements
