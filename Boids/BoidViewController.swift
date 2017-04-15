@@ -26,7 +26,6 @@ class BoidViewController: UIViewController {
             view.ignoresSiblingOrder = true
             view.showsFPS = true
             view.showsNodeCount = false
-            view.isMultipleTouchEnabled = true
         }
     }
     
