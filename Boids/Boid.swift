@@ -18,9 +18,8 @@ class Boid: SKSpriteNode {
     var currentSpeed: CGFloat
     var velocity = CGPoint.zero
     var behaviors = [Behavior]()
-    var destination = CGPoint.zero
-    let momentum: CGFloat = 5
     
+    let momentum: CGFloat = 5
     let visionAngle: CGFloat = 180
     
     private var perceivedCenter = CGPoint.zero
@@ -63,17 +62,11 @@ class Boid: SKSpriteNode {
     func seek(to point:CGPoint) {
         // 🗑 Remove any existing Seek behaviors
         self.behaviors = self.behaviors.filter() { !($0 is Seek) }
-        
-        self.destination = point
-        self.behaviors.append(Seek(intensity: 0.9))
+        self.behaviors.append(Seek(intensity: 0.9, point: point))
     }
 
     func evade(from point:CGPoint) {
-        // 🗑 Remove any existing Evade behaviors
-        self.behaviors = self.behaviors.filter() { !($0 is Evade) }
-        
-        self.destination = point
-        self.behaviors.append(Evade(intensity: 0.9))
+        self.behaviors.append(Evade(intensity: 0.9, point: point))
     }
 
     func updateBoid(withinFlock flock: [Boid], frame: CGRect) {
@@ -85,7 +78,7 @@ class Boid: SKSpriteNode {
             self.perceivedCenter = (neighborhood.reduce(CGPoint.zero) { $0 + $1.position }) / CGFloat(neighborhood.count)
             self.currentSpeed = maximumFlockSpeed
 
-        // 😭 Boid is on its own and has no neighbors
+        // 😭 Boid is on its own with no neighbors
         } else {
             if !self.behaviors.contains(where: { $0 is Rejoin }) {
                 self.behaviors.append(Rejoin(intensity: 0.5))
@@ -115,11 +108,11 @@ class Boid: SKSpriteNode {
                 
             case String(describing: Seek.self):
                 let seek = behavior as? Seek
-                seek?.apply(boid: self, withPoint: self.destination)
+                seek?.apply(boid: self)
                 
             case String(describing: Evade.self):
                 let evade = behavior as? Evade
-                evade?.apply(boid: self, withPoint: self.destination)
+                evade?.apply(boid: self)
             
             case String(describing: Rejoin.self):
                 let panic = behavior as? Rejoin
@@ -213,7 +206,6 @@ fileprivate extension Boid {
         }
         return nearestBoid
     }
-
 
     func rotate() {
         self.zRotation = CGFloat(-atan2(Double(velocity.x), Double(velocity.y))) + CGFloat(90).degreesToRadians

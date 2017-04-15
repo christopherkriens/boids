@@ -11,7 +11,7 @@ import SpriteKit
 class BoidScene: SKScene {
     let numberOfBoids = 50
     var flock = [Boid]()
-    var moving = false
+    var shouldIgnoreTouchEnded = false
     
     override func didMove(to view: SKView) {
         self.backgroundColor = SKColor(colorLiteralRed: (2/255), green: (80/255), blue: (145/255), alpha: 1.0)
@@ -47,8 +47,8 @@ class BoidScene: SKScene {
     }
     
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
-        if moving {
-            moving = false
+        if shouldIgnoreTouchEnded {
+            shouldIgnoreTouchEnded = false
             return
         }
         
@@ -61,16 +61,12 @@ class BoidScene: SKScene {
     }
     
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
-        if let touch = touches.first {
-            let touchPosition = touch.location(in: self)
-            let previousTouchPoistion = touch.previousLocation(in: self)
-            
-            if touchPosition != previousTouchPoistion {
-                moving = true
-                for boid in flock {
-                    boid.evade(from: touchPosition)
-                }
+        for thisTouch in touches {
+            let touchPosition = thisTouch.location(in: self)
+            for boid in flock {
+                boid.evade(from: touchPosition)
             }
+            shouldIgnoreTouchEnded = true
         }
     }
 }

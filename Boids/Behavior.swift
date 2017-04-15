@@ -137,18 +137,24 @@ final class Bound: Behavior {
 final class Seek: Behavior {
     var intensity: CGFloat = 0.0
     var velocity: CGPoint = CGPoint.zero
+    var point: CGPoint = CGPoint.zero
     
-    func apply(boid:Boid, withPoint destination:CGPoint) {
+    convenience init(intensity: CGFloat, point: CGPoint) {
+        self.init(intensity: intensity)
+        self.point = point
+    }
+    
+    func apply(boid:Boid) {
         let goalThreshhold: CGFloat = boid.radius
         
         // Remove this behavior once the goal has been reached 🏁
-        guard !boid.position.nearlyEqual(to: destination, epsilon: goalThreshhold) else {
+        guard !boid.position.nearlyEqual(to: self.point, epsilon: goalThreshhold) else {
             boid.currentSpeed = boid.maximumFlockSpeed
             boid.behaviors = boid.behaviors.filter() { $0 as? Seek !== self }
             return
         }
         boid.currentSpeed = boid.maximumGoalSpeed
-        self.velocity = (destination - boid.position)
+        self.velocity = (self.point - boid.position)
     }
 }
 
@@ -160,18 +166,24 @@ final class Seek: Behavior {
 final class Evade: Behavior {
     var intensity: CGFloat = 0.0
     var velocity: CGPoint = CGPoint.zero
-
-    func apply(boid:Boid, withPoint destination:CGPoint) {
+    var point: CGPoint = CGPoint.zero
+    
+    convenience init(intensity: CGFloat, point: CGPoint) {
+        self.init(intensity: intensity)
+        self.point = point
+    }
+    
+    func apply(boid:Boid) {
         let fearThreshold: CGFloat = boid.radius * 4
 
         // Remove this behavior once the goal has been reached 🏁
-        guard boid.position.nearlyEqual(to: destination, epsilon: fearThreshold) else {
+        guard boid.position.nearlyEqual(to: self.point, epsilon: fearThreshold) else {
             boid.currentSpeed = boid.maximumFlockSpeed
             boid.behaviors = boid.behaviors.filter() { $0 as? Evade !== self }
             return
         }
 
-        self.velocity = -(destination - boid.position)
+        self.velocity = -(self.point - boid.position)
         boid.currentSpeed = boid.maximumGoalSpeed
     }
 }
