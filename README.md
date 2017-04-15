@@ -23,6 +23,11 @@ In addition to these flocking rules, I've added two:
 
 **5. Rejoin** - In the event that a boid has no nearby agents, increase speed and move toward the nearest agent
 
+Preview
+-------
+<img src="/Boids/demo.gif" width="660">
+
+
 Source Versioning
 -----------------
 * Xcode 8.3
