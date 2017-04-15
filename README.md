@@ -1,9 +1,10 @@
-# Boids
+<img src="/Boids/boids.png" width="307">
+
 Two dimensional implementation of Boids using SpriteKit and Swift 3.
 
-Now with more emotes! 🐠🐠🐠
+Now with more emotes! 🐠
 
-Boids is an algorithm for simulating natural group flocking behavior of birds and fish.  Flocking can be represented as an emergent behavior by applying a set of simple rules on autonomous agents, called "boids".
+Boids is an algorithm for simulating natural group flocking behavior.  Flocking is an emergent behavior accomplished by applying a set of simple rules on autonomous agents, called "boids".
 
 Rules
 -----
