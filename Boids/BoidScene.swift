@@ -19,7 +19,8 @@ class BoidScene: SKScene {
             // Create a new boid object
             let boid = Boid()//texture: SKTexture(imageNamed:"tang"), color: .white, size: CGSize(width: 40, height: 32))
             
-            let boidlabel = SKLabelNode(text: "🐠") // 🐠 🐟 🐡 🦄 🐔 🚜
+            // Add a label to contain an emote, some examples: 🐠 🐟 🐡 🦄 🐔 🚜
+            let boidlabel = SKLabelNode(text: "🐠")
             boidlabel.fontSize = 36
             boid.addChild(boidlabel)
 
