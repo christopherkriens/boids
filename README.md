@@ -10,18 +10,12 @@ Boids is an algorithm for simulating natural group flocking behavior.  Flocking 
 ## Rules
 The standard flocking rules:
 
-> **1. Cohesion:** Steer toward the average position of nearby agents
-
-> **2. Alignment:** Maintain a heading similar to the average heading of nearby agents
-
-> **3. Separation:** Steer away from agents that are close to avoid crowding
+> **1. Cohesion:** Steer toward the average position of nearby agents <br/><br/>**2. Alignment:** Maintain a heading similar to the average heading of nearby agents<br/><br/>**3. Separation:** Steer away from agents that are close to avoid crowding
 
 
 In addition to the standard flocking rules, I've added two:
 
-> **4. Bound:** Steer away from the bounds of the device screen to keep agents in view
-
-> **5. Rejoin:** In the event that a boid has no nearby agents, increase speed and move toward the nearest agent
+> **4. Bound:** Steer away from the bounds of the device screen to keep agents in view<br/><br/>**5. Rejoin:** In the event that a boid has no nearby agents, increase speed and move toward the nearest agent
 
 
 ## Interaction
@@ -41,7 +35,7 @@ A tap and hold, or a drag adds a temporary rule:
 
 ## Usage
 ```swift
-// Initiale and add a Boid SpriteNode to the Scene
+// Initialize and add a Boid SpriteNode to the Scene
 let boid = Boid(withCharacter: "🐡", andSize: 40)
 addChild(boid)
 ```
