@@ -5,7 +5,7 @@
 ###### Now with more emotes! 🐟 🐔 🦄
 
 ## Overview
-Boids is an algorithm for simulating natural group flocking behavior.  Flocking is an emergent behavior accomplished by applying a set of simple rules on autonomous agents, called "boids".  Each boid assesses its surrounding flock and adjusts its heading based on an evaluation of a simple set of rules.
+Boids is an algorithm for simulating natural group flocking behavior.  Flocking is an emergent behavior accomplished by applying a set of simple rules on autonomous agents, called "boids".  Each boid operates independently, assessing its surrounding flock and adjusting its heading based on an evaluation of a set of basic rules.
 
 ## Rules
 The standard flocking rules:
@@ -20,11 +20,11 @@ In addition to the standard flocking rules, I've added two:
 
 ## Interaction
 
-A single tap adds a temporary rule:
+A tap adds a temporary rule:
 
 > **6. Seek:** Move toward the tap position
 
-A tap and hold, or a drag adds a temporary rule:
+A drag adds a temporary rule:
 
 > **7. Evade:** Move away from the curent tap position
 
