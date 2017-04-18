@@ -13,7 +13,7 @@ class BoidScene: SKScene {
     var shouldIgnoreTouchEnded = false
     
     override func didMove(to view: SKView) {
-        self.backgroundColor = SKColor.white
+        self.backgroundColor = SKColor.black
         
         for i in 0..<self.numberOfBoids {
             // Create a new boid object with Character, some examples: 🐠 🐟 🐡 🦄 🐔 🚜
@@ -37,10 +37,9 @@ class BoidScene: SKScene {
         }
     }
 
-
     override func update(_ currentTime: TimeInterval) {
         for boid in flock {
-            boid.updateBoid(withinFlock: self.flock, frame: self.frame)
+            boid.updateBoid(inFlock: self.flock)
         }
     }
     
@@ -53,7 +52,7 @@ class BoidScene: SKScene {
         if let touch = touches.first {
             let touchPosition = touch.location(in: self)
             for boid in flock {
-                boid.seek(to: touchPosition)
+                boid.seek(touchPosition)
             }
         }
     }
@@ -62,7 +61,7 @@ class BoidScene: SKScene {
         for thisTouch in touches {
             let touchPosition = thisTouch.location(in: self)
             for boid in flock {
-                boid.evade(from: touchPosition)
+                boid.evade(touchPosition)
             }
             shouldIgnoreTouchEnded = true
         }

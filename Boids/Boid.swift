@@ -15,6 +15,7 @@ class Boid: SKSpriteNode {
     var maximumGoalSpeed: CGFloat = 4
     var currentSpeed: CGFloat = 2
     var velocity = CGPoint.zero
+    var sceneFrame = CGRect.zero
     var behaviors = [Behavior]()
     
     let momentum: CGFloat = 5
@@ -50,7 +51,7 @@ class Boid: SKSpriteNode {
         self.addChild(boidlabel)
 
         self.size = CGSize(width: boidlabel.fontSize, height: boidlabel.fontSize)
-        self.behaviors = [Cohesion(intensity: 0.01), Separation(intensity: 0.02), Alignment(intensity: 0.2), Bound(intensity:0.4)]
+        self.behaviors = [Cohesion(intensity: 0.01), Separation(intensity: 0.02), Alignment(intensity: 0.15), Bound(intensity:0.4)]
     }
 
     required init?(coder aDecoder: NSCoder) {
@@ -60,14 +61,14 @@ class Boid: SKSpriteNode {
     
     // MARK: - Updates
 
-    func seek(to point:CGPoint) {
+    func seek(_ point:CGPoint) {
         // 🗑 Remove any existing Seek behaviors
         self.behaviors = self.behaviors.filter() { !($0 is Seek) }
         
-        self.behaviors.append(Seek(intensity: 0.8, point: point))
+        self.behaviors.append(Seek(intensity: 0.2, point: point))
     }
 
-    func evade(from point:CGPoint) {
+    func evade(_ point:CGPoint) {
         // 🗑 Remove any existing Seek behaviors
         self.behaviors = self.behaviors.filter() { !($0 is Seek) }
         
@@ -81,7 +82,7 @@ class Boid: SKSpriteNode {
         self.behaviors.append(Evade(intensity: 0.8, point: point))
     }
 
-    func updateBoid(withinFlock flock: [Boid], frame: CGRect) {
+    func updateBoid(inFlock flock: [Boid]) {
         let neighborhood = self.findNeighbors(inFlock: flock)
         
         // 🐠 Update this boid's flock perception within its neighborhood
@@ -103,37 +104,39 @@ class Boid: SKSpriteNode {
             
             switch behaviorClass {
             case String(describing: Cohesion.self):
-                let cohension = behavior as? Cohesion
-                cohension?.apply(toBoid: self, withCenterOfMass:self.perceivedCenter)
-                
+                if let cohension = behavior as? Cohesion {
+                    cohension.apply(toBoid: self, withCenterOfMass:self.perceivedCenter)
+                }
             case String(describing: Separation.self):
-                let separation = behavior as? Separation
-                separation?.apply(toBoid: self, inFlock: neighborhood)
-                
+                if let separation = behavior as? Separation {
+                    separation.apply(toBoid: self, inFlock: neighborhood)
+                }
             case String(describing: Alignment.self):
-                let alignment = behavior as? Alignment
-                alignment?.apply(toBoid: self, withAlignment: self.perceivedDirection)
-                
+                if let alignment = behavior as? Alignment {
+                    alignment.apply(toBoid: self, withAlignment: self.perceivedDirection)
+                }
             case String(describing: Bound.self):
-                let bound = behavior as? Bound
-                bound?.apply(toBoid: self, inFrame: frame)
-                
+                if let bound = behavior as? Bound {
+                    if let frame = self.parent?.frame {
+                        bound.apply(toBoid: self, inFrame: frame)
+                    }
+                }
             case String(describing: Seek.self):
-                let seek = behavior as? Seek
-                seek?.apply(boid: self)
-                
+                if let seek = behavior as? Seek {
+                    seek.apply(boid: self)
+                }
             case String(describing: Evade.self):
-                let evade = behavior as? Evade
-                evade?.apply(boid: self)
-            
+                if let evade = behavior as? Evade {
+                    evade.apply(boid: self)
+                }
             case String(describing: Rejoin.self):
-                let panic = behavior as? Rejoin
-                panic?.apply(boid:self, neighbors:neighborhood, nearestNeighbor: nearestNeighbor(flock: flock))
-                
+                if let panic = behavior as? Rejoin {
+                    panic.apply(boid:self, neighbors:neighborhood, nearestNeighbor: nearestNeighbor(flock: flock))
+                }
             default: break
             }
         }
-        
+
         // 📝 Sum the velocities provided by each of the behaviors
         self.velocity += (self.behaviors.reduce(self.velocity) { $0 + $1.scaledVelocity }) / self.momentum
         
