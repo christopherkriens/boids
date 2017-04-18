@@ -13,7 +13,7 @@ import SpriteKit
 class Boid: SKSpriteNode {
     var maximumFlockSpeed: CGFloat = 2
     var maximumGoalSpeed: CGFloat = 4
-    var currentSpeed: CGFloat
+    var currentSpeed: CGFloat = 2
     var velocity = CGPoint.zero
     var behaviors = [Behavior]()
     
@@ -33,23 +33,26 @@ class Boid: SKSpriteNode {
 
     
     // MARK: - Initialization
-
-    override init(texture: SKTexture?, color: UIColor, size: CGSize) {
-        self.currentSpeed = maximumFlockSpeed
-
-        super.init(texture: texture, color: color, size: size)
-
+    
+    init(withCharacter character: Character = "❌", fontSize font:CGFloat = 36) {
+        
+        super.init(texture: nil, color: SKColor.clear, size: CGSize())
+        
+        // Configure SpriteNode properties
         self.anchorPoint = CGPoint(x: 0.5, y: 0.5)
         self.position = CGPoint.zero
         self.zPosition = 2
         self.name = "boid"
-
-        self.behaviors = [Cohesion(intensity: 0.01), Separation(intensity: 0.02), Alignment(intensity: 0.2), Bound(intensity:0.4)]
         
-        // Possible enhancement; Modify the local boid's perception of the flock to
-        // remove himself from it.  This way we don't always have to remove it.
+        // 🏷 Create the label and set the character and size
+        let boidlabel = SKLabelNode(text: String(character))
+        boidlabel.fontSize = font
+        self.addChild(boidlabel)
+
+        self.size = CGSize(width: boidlabel.fontSize, height: boidlabel.fontSize)
+        self.behaviors = [Cohesion(intensity: 0.01), Separation(intensity: 0.02), Alignment(intensity: 0.2), Bound(intensity:0.4)]
     }
-    
+
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -60,11 +63,19 @@ class Boid: SKSpriteNode {
     func seek(to point:CGPoint) {
         // 🗑 Remove any existing Seek behaviors
         self.behaviors = self.behaviors.filter() { !($0 is Seek) }
-        self.behaviors.append(Seek(intensity: 0.9, point: point))
+        
+        self.behaviors.append(Seek(intensity: 0.8, point: point))
     }
 
     func evade(from point:CGPoint) {
-        self.behaviors.append(Evade(intensity: 0.9, point: point))
+        // ♻️ If there is an evade behavior in place, reuse it
+        for thisBehavior in self.behaviors {
+            if let evade = thisBehavior as? Evade {
+                evade.point = point
+                return
+            }
+        }
+        self.behaviors.append(Evade(intensity: 0.8, point: point))
     }
 
     func updateBoid(withinFlock flock: [Boid], frame: CGRect) {
@@ -120,16 +131,16 @@ class Boid: SKSpriteNode {
             }
         }
         
-        // ➕ Sum the velocities provided by each of the behaviors
+        // 📝 Sum the velocities provided by each of the behaviors
         self.velocity += (self.behaviors.reduce(self.velocity) { $0 + $1.scaledVelocity }) / self.momentum
         
         // 🚧 Limit the maximum velocity per update
         applySpeedLimit()
         
-        // ⤴️ Stay rotated toward the direction of travel
+        // 🔺 Stay rotated toward the direction of travel
         rotate()
         
-        // 📱 Update the position on screen
+        // 📍 Update the position on screen
         self.position += self.velocity
     }
 }
@@ -176,9 +187,9 @@ fileprivate extension Boid {
      */
     func neighbors(boid: Boid) -> Bool {
         if self.position.distance(from: boid.position) < self.neighborhoodSize {
-            let lowerBound = boid.velocity.rotate(aroundOrigin: boid.position, byDegrees: -self.visionAngle/2)
-            let upperBound = boid.velocity.rotate(aroundOrigin: boid.position, byDegrees: self.visionAngle/2)
-            
+            let lowerBound = boid.velocity.pointByRotatingAround(boid.position, byDegrees: -self.visionAngle/2)
+            let upperBound = boid.velocity.pointByRotatingAround(boid.position, byDegrees: self.visionAngle/2)
+           
             if (lowerBound*boid.velocity) * (lowerBound*upperBound) >= 0 && (upperBound*boid.velocity) * (upperBound*lowerBound) >= 0 {
                 return true
             }
@@ -207,26 +218,5 @@ fileprivate extension Boid {
 
     func rotate() {
         self.zRotation = CGFloat(-atan2(Double(velocity.x), Double(velocity.y))) - CGFloat(90).degreesToRadians
-
-        // flipping functionality; looks weird when moving vertically so disabled
-        // considering some improvements
-        /* if self.velocity.x < 0 {
-            let flip = SKAction.scaleX(to: -1, duration: 0.05)
-            self.setScale(1.0)
-            self.run(flip)
-            self.zRotation += CGFloat(GLKMathDegreesToRadians(180))
-         } else {
-            let flip = SKAction.scaleX(to: 1, duration: 0.1)
-            self.setScale(1.0)
-            self.run(flip)
-         }*/
     }
 }
-
-
-extension Boid {
-    override public var description: String {
-        return "Boid<\(self.name ?? "")> | Position: \(self.position.x),\(self.position.y) | Velocity: \(self.velocity.x), \(self.velocity.y)"
-    }
-}
-

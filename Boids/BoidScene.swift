@@ -16,35 +16,28 @@ class BoidScene: SKScene {
         self.backgroundColor = SKColor.white
         
         for i in 0..<self.numberOfBoids {
-            // Create a new boid object
-            let boid = Boid()//texture: SKTexture(imageNamed:"tang"), color: .white, size: CGSize(width: 40, height: 32))
-            
-            // Add a label to contain an emote, some examples: 🐠 🐟 🐡 🦄 🐔 🚜
-            let boidlabel = SKLabelNode(text: "🐠")
-            boidlabel.fontSize = 36
-            boid.addChild(boidlabel)
+            // Create a new boid object with Character, some examples: 🐠 🐟 🐡 🦄 🐔 🚜
+            let boid = Boid(withCharacter: "🐠", fontSize: 36)
 
-            // 🎲 Position the boid at a random screen location to start
+            // 📱 Position the boid at a random scene location to start
             let randomStartPositionX = round(CGFloat.random(min: 0, max: size.width))
             let randomStartPositionY = round(CGFloat.random(min: 0, max: size.height))
             boid.position = CGPoint(x: randomStartPositionX, y: randomStartPositionY)
             
-            // 🎲 Assign a randomized speed for flocking and goals for variety in flock movement
+            // 🎲 Assign slightly randomized speeds for variety in flock movement
             let randomFlockSpeed = CGFloat.random(min: 3, max: 4)
             let randomGoalSpeed = CGFloat.random(min: 6, max: 7)
             boid.maximumFlockSpeed = randomFlockSpeed
             boid.maximumGoalSpeed = randomGoalSpeed
             
-            boid.size = CGSize(width: boidlabel.fontSize, height: boidlabel.fontSize)
             boid.name = "boid-\(i)"
             
             self.flock.append(boid)
             addChild(boid)
         }
-        
     }
-    
-    
+
+
     override func update(_ currentTime: TimeInterval) {
         for boid in flock {
             boid.updateBoid(withinFlock: self.flock, frame: self.frame)

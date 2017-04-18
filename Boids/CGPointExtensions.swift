@@ -22,7 +22,7 @@ extension CGPoint {
         return atan2(y, x)
     }
     
-    public func rotate(aroundOrigin origin: CGPoint, byDegrees degrees: CGFloat) -> CGPoint {
+    public func pointByRotatingAround(_ origin: CGPoint, byDegrees degrees: CGFloat) -> CGPoint {
         let dx = self.x - origin.x
         let dy = self.y - origin.y
         let radius = sqrt(dx * dx + dy * dy)

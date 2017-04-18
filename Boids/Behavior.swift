@@ -1,7 +1,7 @@
 import UIKit
 import GameplayKit
 
-// Main Behaviors Algorithm : http://www.kfish.org/boids/pseudocode.html
+// Core Behaviors Algorithm : http://www.kfish.org/boids/pseudocode.html
 
 /**
  All behaviors must adopt this protocol.  Behaviors are expected to calculate
@@ -22,8 +22,8 @@ protocol Behavior {
 /**
  This extension provides a default implementation for initialization, so
  that each class that adopts the protocol doesn't need to duplicate this
- common functionality, and a computed property for accessing the scaled
- vector.
+ common functionality, as well as a computed property for accessing the
+ scaled vector.
  */
 extension Behavior {
     init(intensity: CGFloat) {
@@ -32,6 +32,7 @@ extension Behavior {
         self.velocity = CGPoint.zero
         self.intensity = intensity
 
+        // 🔧 Make sure that intensity gets capped between 0 and 1
         let valid: ClosedRange<CGFloat> = 0.0...1.0
         guard valid.contains(intensity) else {
             self.intensity = (round(intensity) > valid.upperBound/2) ? valid.lowerBound : valid.upperBound
@@ -43,7 +44,6 @@ extension Behavior {
         return velocity*intensity
     }
 }
-
 
 /**
  This behavior applies a tendency to move the boid toward a position.

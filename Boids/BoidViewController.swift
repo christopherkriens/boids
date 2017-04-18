@@ -19,7 +19,7 @@ class BoidViewController: UIViewController {
             // 🌎 Present the scene
             view.presentScene(scene)
 
-            // 🔧 Configure a few SKView options
+            // ⚙️ Configure a few SKView options
             view.ignoresSiblingOrder = true
             view.showsFPS = false
             view.showsNodeCount = false
