@@ -9,7 +9,7 @@ import GameplayKit
  */
 protocol Behavior {
     /// The result velocity after the calculation
-    var velocity: CGPoint { get set }
+    var velocity: CGPoint { get }
     
     /// The intensity applied to the velocity, bounded 0.0 to 1.0
     var intensity: CGFloat { get set }
@@ -28,8 +28,7 @@ protocol Behavior {
 extension Behavior {
     init(intensity: CGFloat) {
         self.init()
-        
-        self.velocity = CGPoint.zero
+
         self.intensity = intensity
 
         // 🔧 Make sure that intensity gets capped between 0 and 1
