@@ -68,6 +68,9 @@ class Boid: SKSpriteNode {
     }
 
     func evade(from point:CGPoint) {
+        // 🗑 Remove any existing Seek behaviors
+        self.behaviors = self.behaviors.filter() { !($0 is Seek) }
+        
         // ♻️ If there is an evade behavior in place, reuse it
         for thisBehavior in self.behaviors {
             if let evade = thisBehavior as? Evade {
