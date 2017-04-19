@@ -117,9 +117,7 @@ class Boid: SKSpriteNode {
                 }
             case String(describing: Bound.self):
                 if let bound = behavior as? Bound {
-                    if let frame = self.parent?.frame {
-                        bound.apply(toBoid: self, inFrame: frame)
-                    }
+                    bound.apply(toBoid: self)
                 }
             case String(describing: Seek.self):
                 if let seek = behavior as? Seek {

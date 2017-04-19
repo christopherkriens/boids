@@ -101,9 +101,14 @@ final class Bound: Behavior {
     var velocity: CGPoint = CGPoint.zero
     var intensity: CGFloat = 0.0
     
-    func apply(toBoid boid:Boid, inFrame frame: CGRect) {
+    func apply(toBoid boid:Boid) {
         self.velocity = CGPoint.zero
 
+        // Boids not within scenes can't be bound
+        guard let frame = boid.parent?.frame else {
+            return
+        }
+        
         let borderMargin:CGFloat = 100
         let borderAversion: CGFloat = boid.currentSpeed
 

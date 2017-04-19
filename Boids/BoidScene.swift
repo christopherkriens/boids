@@ -17,7 +17,7 @@ class BoidScene: SKScene {
         
         for i in 0..<self.numberOfBoids {
             // Create a new boid object with Character, some examples: 🐠 🐟 🐡 🦄 🐔 🚜
-            let boid = Boid(withCharacter: "🐠", fontSize: 36)
+            let boid = Boid(withCharacter: "🐠", fontSize: 32)
 
             // 📱 Position the boid at a random scene location to start
             let randomStartPositionX = round(CGFloat.random(min: 0, max: size.width))
@@ -25,8 +25,8 @@ class BoidScene: SKScene {
             boid.position = CGPoint(x: randomStartPositionX, y: randomStartPositionY)
             
             // 🎲 Assign slightly randomized speeds for variety in flock movement
-            let randomFlockSpeed = CGFloat.random(min: 3, max: 4)
-            let randomGoalSpeed = CGFloat.random(min: 6, max: 7)
+            let randomFlockSpeed = CGFloat.random(min: 2, max: 3)
+            let randomGoalSpeed = CGFloat.random(min: 5, max: 6)
             boid.maximumFlockSpeed = randomFlockSpeed
             boid.maximumGoalSpeed = randomGoalSpeed
             
