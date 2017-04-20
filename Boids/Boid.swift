@@ -17,6 +17,7 @@ class Boid: SKSpriteNode {
     var velocity = CGPoint.zero
     var sceneFrame = CGRect.zero
     var behaviors = [Behavior]()
+    var neighborhood: [Boid] = [Boid]()
     
     let momentum: CGFloat = 5
     let visionAngle: CGFloat = 180
@@ -83,13 +84,15 @@ class Boid: SKSpriteNode {
         self.behaviors.append(Evade(intensity: 0.8, point: point))
     }
 
+    func assessNeighborhood(forFlock flock: [Boid]) {
+        self.neighborhood = self.findNeighbors(inFlock: flock)
+    }
+    
     func updateBoid(inFlock flock: [Boid], deltaTime: TimeInterval) {
-        let neighborhood = self.findNeighbors(inFlock: flock)
-        
         // 🐠 Update this boid's flock perception within its neighborhood
-        if neighborhood.count > 0 {
-            self.perceivedDirection = (neighborhood.reduce(CGPoint.zero) { $0 + $1.velocity }) / CGFloat(neighborhood.count)
-            self.perceivedCenter = (neighborhood.reduce(CGPoint.zero) { $0 + $1.position }) / CGFloat(neighborhood.count)
+        if self.neighborhood.count > 0 {
+            self.perceivedDirection = (neighborhood.reduce(CGPoint.zero) { $0 + $1.velocity }) / CGFloat(self.neighborhood.count)
+            self.perceivedCenter = (neighborhood.reduce(CGPoint.zero) { $0 + $1.position }) / CGFloat(self.neighborhood.count)
             self.currentSpeed = maximumFlockSpeed
 
         // 😭 Boid is on its own with no neighbors
@@ -110,7 +113,7 @@ class Boid: SKSpriteNode {
                 }
             case String(describing: Separation.self):
                 if let separation = behavior as? Separation {
-                    separation.apply(toBoid: self, inFlock: neighborhood)
+                    separation.apply(toBoid: self, inFlock: self.neighborhood)
                 }
             case String(describing: Alignment.self):
                 if let alignment = behavior as? Alignment {
@@ -130,7 +133,7 @@ class Boid: SKSpriteNode {
                 }
             case String(describing: Rejoin.self):
                 if let panic = behavior as? Rejoin {
-                    panic.apply(boid:self, neighbors:neighborhood, nearestNeighbor: nearestNeighbor(flock: flock))
+                    panic.apply(boid:self, neighbors:self.neighborhood, nearestNeighbor: nearestNeighbor(flock: flock))
                 }
             default: break
             }
@@ -168,6 +171,7 @@ fileprivate extension Boid {
     
     /**
      Examines an array of boids and returns a subarray with boids that are considered neighbors.
+     This function is O(n²) where n = flock size and should be used sparingly for large flocks.
      - parameters:
         - inFlock: The array of boids for which potential neighbors can be found.
      - returns: A subarray with boids that are considered neighbors.  Current boid will never be included.
@@ -183,7 +187,7 @@ fileprivate extension Boid {
         }
         return neighbors
     }
-    
+
     /**
      A boid considers another boid a neighbor if it is within a certain 
      distance and is able to perceive it within a 180º field of vison.

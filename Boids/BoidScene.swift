@@ -8,11 +8,13 @@
 import SpriteKit
 
 class BoidScene: SKScene {
-    let numberOfBoids = 50
-    var flock = [Boid]()
-    var shouldIgnoreTouchEnded = false
-    var lastUpdateTime: TimeInterval = 0
-    
+    let numberOfBoids = 80
+    private var flock = [Boid]()
+    private var shouldIgnoreTouchEnded = false
+    private var lastUpdateTime: TimeInterval = 0
+    private var frameCount:Int = 0
+    private let neighborhoodUpdateFrequency = 30
+
     override func didMove(to view: SKView) {
         self.backgroundColor = SKColor.black
         
@@ -39,15 +41,23 @@ class BoidScene: SKScene {
     }
 
     override func update(_ currentTime: TimeInterval) {
-        var deltaTime: TimeInterval
-        if self.lastUpdateTime == 0 {
-            deltaTime = 0
-        } else {
-            deltaTime = currentTime - self.lastUpdateTime
-        }
+        var deltaTime: TimeInterval = self.lastUpdateTime == 0 ? 0 : currentTime - self.lastUpdateTime
         self.lastUpdateTime = currentTime
-        
+
+        frameCount += 1
+
+        // 🏘 The boid will reassess its neighborhood every so often, not every frame
+        let shouldUpdateNeighborhood: Bool = frameCount >= self.neighborhoodUpdateFrequency
+        if shouldUpdateNeighborhood {
+            defer {
+                frameCount = 0
+            }
+        }
+
         for boid in flock {
+            if shouldUpdateNeighborhood {
+                boid.assessNeighborhood(forFlock: self.flock)
+            }
             boid.updateBoid(inFlock: self.flock, deltaTime: deltaTime)
         }
     }
@@ -77,4 +87,3 @@ class BoidScene: SKScene {
         shouldIgnoreTouchEnded = true
     }
 }
-

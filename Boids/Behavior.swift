@@ -200,25 +200,25 @@ final class Evade: Behavior {
 final class Rejoin: Behavior {
     var intensity: CGFloat = 0.0
     var velocity: CGPoint = CGPoint.zero
-    
+
     func apply(boid:Boid, neighbors:[Boid], nearestNeighbor: Boid?) {
-        
+
         // 🔎 Make sure a neighbor was sent and has a position
         guard let nearestNeighborPosition = nearestNeighbor?.position else {
             return
         }
-        
+
         // 🏁 Remove this behavior once the goal has been reached
-        guard neighbors.count <= 1 else {
+        guard neighbors.count < 1 else {
             boid.currentSpeed = boid.maximumFlockSpeed
             boid.behaviors = boid.behaviors.filter() { $0 as? Rejoin !== self }
             return
         }
         
-        self.velocity = (nearestNeighborPosition - boid.position)
-        
         if boid.currentSpeed < (boid.maximumFlockSpeed+boid.maximumGoalSpeed)/2 {
             boid.currentSpeed *= 1.1
         }
+        
+        self.velocity = (nearestNeighborPosition - boid.position)
     }
 }
