@@ -11,12 +11,13 @@ class BoidScene: SKScene {
     let numberOfBoids = 50
     var flock = [Boid]()
     var shouldIgnoreTouchEnded = false
+    var lastUpdateTime: TimeInterval = 0
     
     override func didMove(to view: SKView) {
         self.backgroundColor = SKColor.black
         
         for i in 0..<self.numberOfBoids {
-            // Create a new boid object with Character, some examples: 🐠 🐟 🐡 🦄 🐔 🚜
+            // Create a new boid object with Character, e.g. : 🐠 🐟 🐡 🦄 🐔 🚜
             let boid = Boid(withCharacter: "🐠", fontSize: 32)
 
             // 📱 Position the boid at a random scene location to start
@@ -38,8 +39,16 @@ class BoidScene: SKScene {
     }
 
     override func update(_ currentTime: TimeInterval) {
+        var deltaTime: TimeInterval
+        if self.lastUpdateTime == 0 {
+            deltaTime = 0
+        } else {
+            deltaTime = currentTime - self.lastUpdateTime
+        }
+        self.lastUpdateTime = currentTime
+        
         for boid in flock {
-            boid.updateBoid(inFlock: self.flock)
+            boid.updateBoid(inFlock: self.flock, deltaTime: deltaTime)
         }
     }
 
@@ -64,6 +73,7 @@ class BoidScene: SKScene {
                 boid.evade(touchPosition)
             }
         }
+        // 👈🏼 Ignore false positives for a tap gesture on release
         shouldIgnoreTouchEnded = true
     }
 }

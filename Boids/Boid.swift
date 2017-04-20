@@ -51,7 +51,7 @@ class Boid: SKSpriteNode {
         self.addChild(boidlabel)
 
         self.size = CGSize(width: boidlabel.fontSize, height: boidlabel.fontSize)
-        self.behaviors = [Cohesion(intensity: 0.01), Separation(intensity: 0.02), Alignment(intensity: 0.15), Bound(intensity:0.4)]
+        self.behaviors = [Cohesion(intensity: 0.01), Separation(intensity: 0.015), Alignment(intensity: 0.15), Bound(intensity:0.4)]
     }
 
     required init?(coder aDecoder: NSCoder) {
@@ -73,16 +73,17 @@ class Boid: SKSpriteNode {
         self.behaviors = self.behaviors.filter() { !($0 is Seek) }
         
         // ♻️ If there is an evade behavior in place, reuse it
-        for thisBehavior in self.behaviors {
+        // This breaks multitouch evade support - REVISIT
+        /*for thisBehavior in self.behaviors {
             if let evade = thisBehavior as? Evade {
                 evade.point = point
                 return
             }
-        }
+        }*/
         self.behaviors.append(Evade(intensity: 0.8, point: point))
     }
 
-    func updateBoid(inFlock flock: [Boid]) {
+    func updateBoid(inFlock flock: [Boid], deltaTime: TimeInterval) {
         let neighborhood = self.findNeighbors(inFlock: flock)
         
         // 🐠 Update this boid's flock perception within its neighborhood
@@ -135,7 +136,7 @@ class Boid: SKSpriteNode {
             }
         }
 
-        // 📝 Sum the velocities provided by each of the behaviors
+        // 🤓 Sum the velocities provided by each of the behaviors
         self.velocity += (self.behaviors.reduce(self.velocity) { $0 + $1.scaledVelocity }) / self.momentum
         
         // 🚧 Limit the maximum velocity per update
@@ -145,7 +146,8 @@ class Boid: SKSpriteNode {
         rotate()
         
         // 📍 Update the position on screen
-        self.position += self.velocity
+        
+        self.position += self.velocity * (CGFloat(deltaTime)*60)
     }
 }
 

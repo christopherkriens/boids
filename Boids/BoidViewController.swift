@@ -13,15 +13,16 @@ class BoidViewController: UIViewController {
         super.viewDidLoad()
         
         if let view = self.view as! SKView? {
+            // 🌅 Create a BoidScene
             let scene = BoidScene(size: self.view.bounds.size)
             scene.scaleMode = .aspectFit
                 
-            // 🌎 Present the scene
+            // 📽 Present the Scene
             view.presentScene(scene)
 
-            // ⚙️ Configure a few SKView options
+            // ⚙️ Configure a few options
             view.ignoresSiblingOrder = true
-            view.showsFPS = false
+            view.showsFPS = true
             view.showsNodeCount = false
         }
     }
