@@ -8,6 +8,13 @@
 //
 //  Created by Christopher Kriens on 4/5/17.
 
+enum BoidOrientation: CGFloat {
+    case north = 0
+    case east = 270
+    case south = 180
+    case west = 90
+}
+
 import SpriteKit
 
 class Boid: SKSpriteNode {
@@ -18,7 +25,8 @@ class Boid: SKSpriteNode {
     var sceneFrame = CGRect.zero
     var behaviors = [Behavior]()
     var neighborhood: [Boid] = [Boid]()
-    
+    var orientation:BoidOrientation = .west
+
     let momentum: CGFloat = 5
     let visionAngle: CGFloat = 180
     
@@ -36,7 +44,7 @@ class Boid: SKSpriteNode {
     
     // MARK: - Initialization
     
-    init(withCharacter character: Character = "❌", fontSize font:CGFloat = 36) {
+    init(withCharacter character: Character = "❌", fontSize font: CGFloat = 36, orientation: BoidOrientation = .west) {
         
         super.init(texture: nil, color: SKColor.clear, size: CGSize())
         
@@ -51,6 +59,7 @@ class Boid: SKSpriteNode {
         boidlabel.fontSize = font
         self.addChild(boidlabel)
 
+        self.orientation = orientation
         self.size = CGSize(width: boidlabel.fontSize, height: boidlabel.fontSize)
         self.behaviors = [Cohesion(intensity: 0.01), Separation(intensity: 0.015), Alignment(intensity: 0.15), Bound(intensity:0.4)]
     }
@@ -149,7 +158,6 @@ class Boid: SKSpriteNode {
         rotate()
         
         // 📍 Update the position on screen
-        
         self.position += self.velocity * (CGFloat(deltaTime)*60)
     }
 }
@@ -225,8 +233,13 @@ fileprivate extension Boid {
         }
         return nearestBoid
     }
-
+    
+    /**
+     Rotates the sprite node so it's oriented in the direction of travel.
+     - parameters:
+     - orientation: A flock of boids to search
+     */
     func rotate() {
-        self.zRotation = CGFloat(-atan2(Double(velocity.x), Double(velocity.y))) - CGFloat(90).degreesToRadians
+        self.zRotation = CGFloat(-atan2(Double(velocity.x), Double(velocity.y))) - self.orientation.rawValue.degreesToRadians
     }
 }
