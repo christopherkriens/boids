@@ -152,7 +152,7 @@ final class Seek: Behavior {
         let goalThreshhold: CGFloat = boid.radius
         
         // 🏁 Remove this behavior once the goal has been reached
-        guard !boid.position.nearlyEqual(to: self.point, epsilon: goalThreshhold) else {
+        guard boid.position.outside(range: goalThreshhold, of: self.point) else {
             boid.currentSpeed = boid.maximumFlockSpeed
             boid.behaviors = boid.behaviors.filter() { $0 as? Seek !== self }
             return
@@ -181,7 +181,7 @@ final class Evade: Behavior {
         let fearThreshold: CGFloat = boid.radius * 4
 
         // 🏁 Remove this behavior once the goal has been reached
-        guard boid.position.nearlyEqual(to: self.point, epsilon: fearThreshold) else {
+        guard boid.position.within(range: fearThreshold, of: self.point) else {
             boid.currentSpeed = boid.maximumFlockSpeed
             boid.behaviors = boid.behaviors.filter() { $0 as? Evade !== self }
             return

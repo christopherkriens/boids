@@ -1,9 +1,13 @@
 import CoreGraphics
 
 extension CGPoint {
-    public func nearlyEqual(to point: CGPoint, epsilon: CGFloat) -> Bool {
+    public func within(range: CGFloat, of point: CGPoint) -> Bool {
         let difference = self - point
-        return fabs(difference.x) < epsilon && fabs(difference.y) < epsilon
+        return fabs(difference.x) < range && fabs(difference.y) < range
+    }
+    
+    public func outside(range: CGFloat, of point: CGPoint) -> Bool {
+        return !(within(range: range, of: point))
     }
     
     public var length: CGFloat {
@@ -28,8 +32,8 @@ extension CGPoint {
         let radius = sqrt(dx * dx + dy * dy)
         let azimuth = atan2(dy, dx)
         let newAzimuth = azimuth + degrees.degreesToRadians
-        let x = origin.x + radius * CoreGraphics.cos(newAzimuth)
-        let y = origin.y + radius * CoreGraphics.sin(newAzimuth)
+        let x = origin.x + radius * cos(newAzimuth)
+        let y = origin.y + radius * sin(newAzimuth)
         return CGPoint(x: x, y: y)
     }
     
@@ -39,14 +43,6 @@ extension CGPoint {
     
     public func squareDistance(from point: CGPoint) -> CGFloat {
         return (self - point).squareLength
-    }
-    
-    public func angle(from point: CGPoint) -> CGFloat {
-        return acos(cos(angleFrom: point))
-    }
-    
-    public func cos(angleFrom point: CGPoint) -> CGFloat {
-        return fmin(fmax(self * point / sqrt(self.squareLength * point.squareLength), -1.0), 1.0)
     }
 }
 
