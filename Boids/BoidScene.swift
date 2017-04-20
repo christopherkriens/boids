@@ -20,13 +20,13 @@ class BoidScene: SKScene {
             let boid = Boid(withCharacter: "🐠", fontSize: 32)
 
             // 📱 Position the boid at a random scene location to start
-            let randomStartPositionX = round(CGFloat.random(min: 0, max: size.width))
-            let randomStartPositionY = round(CGFloat.random(min: 0, max: size.height))
+            let randomStartPositionX = round(CGFloat.random(between: 0, and: size.width))
+            let randomStartPositionY = round(CGFloat.random(between: 0, and: size.height))
             boid.position = CGPoint(x: randomStartPositionX, y: randomStartPositionY)
             
             // 🎲 Assign slightly randomized speeds for variety in flock movement
-            let randomFlockSpeed = CGFloat.random(min: 2, max: 3)
-            let randomGoalSpeed = CGFloat.random(min: 5, max: 6)
+            let randomFlockSpeed = CGFloat.random(between: 2, and: 3)
+            let randomGoalSpeed = CGFloat.random(between: 5, and: 6)
             boid.maximumFlockSpeed = randomFlockSpeed
             boid.maximumGoalSpeed = randomGoalSpeed
             
@@ -42,7 +42,7 @@ class BoidScene: SKScene {
             boid.updateBoid(inFlock: self.flock)
         }
     }
-    
+
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
         if shouldIgnoreTouchEnded {
             shouldIgnoreTouchEnded = false
@@ -56,14 +56,15 @@ class BoidScene: SKScene {
             }
         }
     }
-    
+
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
         for thisTouch in touches {
             let touchPosition = thisTouch.location(in: self)
             for boid in flock {
                 boid.evade(touchPosition)
             }
-            shouldIgnoreTouchEnded = true
         }
+        shouldIgnoreTouchEnded = true
     }
 }
+

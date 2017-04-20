@@ -9,7 +9,7 @@ public extension CGFloat {
         return self * 180 / .pi
     }
     
-    public static func random(min: CGFloat, max: CGFloat) -> CGFloat {
+    public static func random(between min: CGFloat, and max: CGFloat) -> CGFloat {
         assert(min < max)
         return CGFloat.random() * (max - min) + min
     }
