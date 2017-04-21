@@ -46,8 +46,8 @@ self.behaviors = [Cohesion(intensity: 0.1), Separation(intensity: 0.1), Alignmen
 ```
 
 ## Source Versioning
-* Xcode 8.3
-* iOS SDK 10.3
+* Xcode 8.3.2
+* iOS SDK 10.3.2
 * Swift 3.1
 
 ## Credit
