@@ -216,7 +216,7 @@ final class Rejoin: Behavior {
         }
         
         if boid.currentSpeed < (boid.maximumFlockSpeed+boid.maximumGoalSpeed)/2 {
-            boid.currentSpeed *= 1.1
+            boid.currentSpeed *= 1.01
         }
         
         self.velocity = (nearestNeighborPosition - boid.position)

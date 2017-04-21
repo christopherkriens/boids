@@ -109,7 +109,7 @@ class Boid: SKSpriteNode {
         // 😭 Boid is on its own with no neighbors
         } else {
             if !self.behaviors.contains(where: { $0 is Rejoin }) {
-                self.behaviors.append(Rejoin(intensity: 0.5))
+                self.behaviors.append(Rejoin(intensity: 0.3))
             }
         }
 
@@ -224,11 +224,15 @@ fileprivate extension Boid {
      - returns: `Boid?` - The closest boid.  Can be nil.
      */
     func nearestNeighbor(flock: [Boid]) -> Boid? {
-        guard var nearestBoid = flock.first else {
+        
+        
+        let selflessFlock = flock.filter() { $0 !== self }
+    
+        guard var nearestBoid = selflessFlock.first else {
             return nil
         }
         
-        for flockBoid in flock {
+        for flockBoid in selflessFlock {
             if self.position.distance(from: flockBoid.position) < self.position.distance(from: nearestBoid.position) {
                 nearestBoid = flockBoid
             }
