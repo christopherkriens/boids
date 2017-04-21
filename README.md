@@ -1,7 +1,7 @@
 <img src="/Boids/boids.png" width="420">
 
 #### Two dimensional implementation of Boids using SpriteKit and Swift 3.
-
+<img src="http://img.shields.io/badge/License-MIT-red.svg"> <img src="http://img.shields.io/badge/Platforms-iOS-lightgrey.svg"> <img src="http://img.shields.io/badge/Swift-3.1-orange.svg">
 ###### Now with more emotes! 🐟 🐔 🦄
 
 ## Overview
