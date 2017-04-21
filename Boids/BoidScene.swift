@@ -8,7 +8,7 @@
 import SpriteKit
 
 class BoidScene: SKScene {
-    let numberOfBoids = 80
+    let numberOfBoids = 50
     private var flock = [Boid]()
     private var shouldIgnoreTouchEnded = false
     private var lastUpdateTime: TimeInterval = 0
@@ -20,7 +20,7 @@ class BoidScene: SKScene {
         
         for i in 0..<self.numberOfBoids {
             // Create a new boid object with Character, e.g. : 🐠 🐟 🐡 🦄 🐔 🚜
-            let boid = Boid(withCharacter: "🐠", fontSize: 32)
+            let boid = Boid(withCharacter: "🐠", fontSize: 34)
 
             // 📱 Position the boid at a random scene location to start
             let randomStartPositionX = round(CGFloat.random(between: 0, and: size.width))
