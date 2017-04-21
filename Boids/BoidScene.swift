@@ -10,10 +10,9 @@ import SpriteKit
 class BoidScene: SKScene {
     let numberOfBoids = 50
     private var flock = [Boid]()
-    private var shouldIgnoreTouchEnded = false
     private var lastUpdateTime: TimeInterval = 0
     private var frameCount:Int = 0
-    private let neighborhoodUpdateFrequency = 30
+    private let neighborhoodUpdateFrequency = 10
 
     override func didMove(to view: SKView) {
         self.backgroundColor = SKColor.black
@@ -41,18 +40,13 @@ class BoidScene: SKScene {
     }
 
     override func update(_ currentTime: TimeInterval) {
-        var deltaTime: TimeInterval = self.lastUpdateTime == 0 ? 0 : currentTime - self.lastUpdateTime
+        let deltaTime: TimeInterval = self.lastUpdateTime == 0 ? 0 : currentTime - self.lastUpdateTime
         self.lastUpdateTime = currentTime
 
         frameCount += 1
 
         // 🏘 The boid will reassess its neighborhood every so often, not every frame
         let shouldUpdateNeighborhood: Bool = frameCount >= self.neighborhoodUpdateFrequency
-        if shouldUpdateNeighborhood {
-            defer {
-                frameCount = 0
-            }
-        }
 
         for boid in flock {
             if shouldUpdateNeighborhood {
@@ -60,30 +54,44 @@ class BoidScene: SKScene {
             }
             boid.updateBoid(inFlock: self.flock, deltaTime: deltaTime)
         }
-    }
-
-    override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
-        if shouldIgnoreTouchEnded {
-            shouldIgnoreTouchEnded = false
-            return
-        }
-        
-        if let touch = touches.first {
-            let touchPosition = touch.location(in: self)
-            for boid in flock {
-                boid.seek(touchPosition)
-            }
+        if shouldUpdateNeighborhood {
+            frameCount = 0
         }
     }
 
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
-        for thisTouch in touches {
-            let touchPosition = thisTouch.location(in: self)
-            for boid in flock {
-                boid.evade(touchPosition)
+        guard self.view?.traitCollection.forceTouchCapability == .available else {
+            if let touchPosition = touches.first?.location(in: self) {
+                for boid in flock {
+                    boid.seek(touchPosition)
+                }
             }
+            return
         }
-        // 👈🏼 Ignore false positives for a tap gesture on release
-        shouldIgnoreTouchEnded = true
+    
+        if let touchPosition = touches.first?.location(in: self) {
+            let normalTouchRange: ClosedRange<CGFloat> = 0.0...0.5
+            let forceTouchRange: ClosedRange<CGFloat> = 0.5...CGFloat.greatestFiniteMagnitude
+            let touch = touches.first!
+
+            switch touch.force {
+            case normalTouchRange:
+                for boid in flock {
+                    boid.seek(touchPosition)
+                }
+            case forceTouchRange:
+                if let touchPosition = touches.first?.location(in: self) {
+                    for boid in flock {
+                        boid.evade(touchPosition)
+                    }
+                }
+            default:
+                break
+            }
+            
+            
+            
+            
+        }
     }
 }

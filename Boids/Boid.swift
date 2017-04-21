@@ -27,7 +27,7 @@ class Boid: SKSpriteNode {
     var neighborhood: [Boid] = [Boid]()
     var orientation:BoidOrientation = .west
 
-    let momentum: CGFloat = 5
+    let momentum: CGFloat = 6
     let visionAngle: CGFloat = 180
     
     private var perceivedCenter = CGPoint.zero
@@ -72,10 +72,13 @@ class Boid: SKSpriteNode {
     // MARK: - Updates
 
     func seek(_ point:CGPoint) {
-        // 🗑 Remove any existing Seek behaviors
-        self.behaviors = self.behaviors.filter() { !($0 is Seek) }
-        
-        self.behaviors.append(Seek(intensity: 0.2, point: point))
+        for thisBehavior in self.behaviors {
+            if let seek = thisBehavior as? Seek {
+                seek.point = point
+                return
+            }
+        }
+        self.behaviors.append(Seek(intensity: 0.03, point: point))
     }
 
     func evade(_ point:CGPoint) {
@@ -83,14 +86,13 @@ class Boid: SKSpriteNode {
         self.behaviors = self.behaviors.filter() { !($0 is Seek) }
         
         // ♻️ If there is an evade behavior in place, reuse it
-        // This breaks multitouch evade support - REVISIT
-        /*for thisBehavior in self.behaviors {
+        for thisBehavior in self.behaviors {
             if let evade = thisBehavior as? Evade {
                 evade.point = point
                 return
             }
-        }*/
-        self.behaviors.append(Evade(intensity: 0.8, point: point))
+        }
+        self.behaviors.append(Evade(intensity: 0.7, point: point))
     }
 
     func assessNeighborhood(forFlock flock: [Boid]) {
