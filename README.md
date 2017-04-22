@@ -20,13 +20,13 @@ In addition to the standard flocking rules, I've added two:
 
 ## Interaction
 
-A tap adds a temporary rule:
+A touch adds a temporary rule:
 
-> **6. Seek:** Move toward the tap position
+> **6. Seek:** Move toward the touch position
 
-A drag adds a temporary rule:
+A force touch adds a temporary rule:
 
-> **7. Evade:** Move away from the curent tap position
+> **7. Evade:** Move away from the curent touch position
 
 
 ## Preview
