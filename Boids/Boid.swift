@@ -2,9 +2,9 @@
 //  Boid.swift
 //  Boids
 //
-//    🐠
-//  🐠
-//   🐠
+//     🐠 🐠
+//  🐠 🐠  🐠
+//    🐠 🐠 🐠
 //
 //  Created by Christopher Kriens on 4/5/17.
 
@@ -61,7 +61,7 @@ class Boid: SKSpriteNode {
 
         self.orientation = orientation
         self.size = CGSize(width: boidlabel.fontSize, height: boidlabel.fontSize)
-        self.behaviors = [Cohesion(intensity: 0.01), Separation(intensity: 0.015), Alignment(intensity: 0.15), Bound(intensity:0.4)]
+        self.behaviors = [Cohesion(intensity: 0.01), Separation(intensity: 0.02), Alignment(intensity: 0.2), Bound(intensity:0.4)]
     }
 
     required init?(coder aDecoder: NSCoder) {
@@ -82,8 +82,9 @@ class Boid: SKSpriteNode {
     }
 
     func evade(_ point:CGPoint) {
-        // 🗑 Remove any existing Seek behaviors
+        // 🗑 Remove any existing Bound and Seek behaviors
         self.behaviors = self.behaviors.filter() { !($0 is Seek) }
+        self.behaviors = self.behaviors.filter() { !($0 is Bound) }
         
         // ♻️ If there is an evade behavior in place, reuse it
         for thisBehavior in self.behaviors {
@@ -92,27 +93,29 @@ class Boid: SKSpriteNode {
                 return
             }
         }
-        self.behaviors.append(Evade(intensity: 0.7, point: point))
+        self.behaviors.append(Evade(intensity: 0.2, point: point))
     }
 
-    func assessNeighborhood(forFlock flock: [Boid]) {
+    func evaluateNeighborhood(forFlock flock: [Boid]) {
         self.neighborhood = self.findNeighbors(inFlock: flock)
     }
     
-    func updateBoid(inFlock flock: [Boid], deltaTime: TimeInterval) {
+    func updatePerception() {
         // 🐠 Update this boid's flock perception within its neighborhood
         if self.neighborhood.count > 0 {
             self.perceivedDirection = (neighborhood.reduce(CGPoint.zero) { $0 + $1.velocity }) / CGFloat(self.neighborhood.count)
             self.perceivedCenter = (neighborhood.reduce(CGPoint.zero) { $0 + $1.position }) / CGFloat(self.neighborhood.count)
             self.currentSpeed = maximumFlockSpeed
-
-        // 😭 Boid is on its own with no neighbors
+            
+            // 😭 Boid is on its own with no neighbors
         } else {
             if !self.behaviors.contains(where: { $0 is Rejoin }) {
                 self.behaviors.append(Rejoin(intensity: 0.3))
             }
         }
-
+    }
+    
+    func updateBoid(inFlock flock: [Boid], deltaTime: TimeInterval) {
         // ✏️ Apply each of the boid's behaviors
         for behavior in self.behaviors {
             let behaviorClass = String(describing: type(of: behavior))
@@ -150,7 +153,7 @@ class Boid: SKSpriteNode {
             }
         }
 
-        // 🤓 Sum the velocities provided by each of the behaviors
+        // 🤓 Sum the velocities supplied by each of the behaviors
         self.velocity += (self.behaviors.reduce(self.velocity) { $0 + $1.scaledVelocity }) / self.momentum
         
         // 🚧 Limit the maximum velocity per update
@@ -218,21 +221,19 @@ fileprivate extension Boid {
     }
 
     /**
-     Finds the boid with the closest position within the given flock.
+     Finds the boid with the closest position within the given flock.  Does not account for vision.
      - parameters:
         - flock: A flock of boids to search
      - returns: `Boid?` - The closest boid.  Can be nil.
      */
     func nearestNeighbor(flock: [Boid]) -> Boid? {
         
-        
-        let selflessFlock = flock.filter() { $0 !== self }
-    
-        guard var nearestBoid = selflessFlock.first else {
+        let flock = flock.filter() { $0 !== self }
+        guard var nearestBoid = flock.first else {
             return nil
         }
-        
-        for flockBoid in selflessFlock {
+
+        for flockBoid in flock {
             if self.position.distance(from: flockBoid.position) < self.position.distance(from: nearestBoid.position) {
                 nearestBoid = flockBoid
             }

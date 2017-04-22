@@ -8,18 +8,20 @@
 import SpriteKit
 
 class BoidScene: SKScene {
-    let numberOfBoids = 50
+    let numberOfBoids = 100
     private var flock = [Boid]()
     private var lastUpdateTime: TimeInterval = 0
     private var frameCount:Int = 0
-    private let neighborhoodUpdateFrequency = 10
+    private let neighborhoodUpdateFrequency = 37
+    private let perceptionUpdateFrequency = 31
+    private var shouldIgnoreReturnTouch = false
 
     override func didMove(to view: SKView) {
         self.backgroundColor = SKColor.black
         
         for i in 0..<self.numberOfBoids {
             // Create a new boid object with Character, e.g. : 🐠 🐟 🐡 🦄 🐔 🚜
-            let boid = Boid(withCharacter: "🐠", fontSize: 34)
+            let boid = Boid(withCharacter: "🐠", fontSize: 30)
 
             // 📱 Position the boid at a random scene location to start
             let randomStartPositionX = round(CGFloat.random(between: 0, and: size.width))
@@ -45,21 +47,27 @@ class BoidScene: SKScene {
 
         frameCount += 1
 
-        // 🏘 The boid will reassess its neighborhood every so often, not every frame
-        let shouldUpdateNeighborhood: Bool = frameCount >= self.neighborhoodUpdateFrequency
-
         for boid in flock {
-            if shouldUpdateNeighborhood {
-                boid.assessNeighborhood(forFlock: self.flock)
+            // 🏡🏠 The boid should reevaluate its neighborhood every so often
+            if frameCount % neighborhoodUpdateFrequency == 0 {
+                boid.evaluateNeighborhood(forFlock: self.flock)
             }
+            
+            // 👁👁 The boid should recalculate its perception every so often
+            if frameCount % perceptionUpdateFrequency == 0 {
+                boid.updatePerception()
+            }
+            
             boid.updateBoid(inFlock: self.flock, deltaTime: deltaTime)
-        }
-        if shouldUpdateNeighborhood {
-            frameCount = 0
         }
     }
 
+    override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
+        shouldIgnoreReturnTouch = false
+    }
+    
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
+        // ⚠️ Make sure that Force Touch is available
         guard self.view?.traitCollection.forceTouchCapability == .available else {
             if let touchPosition = touches.first?.location(in: self) {
                 for boid in flock {
@@ -68,30 +76,28 @@ class BoidScene: SKScene {
             }
             return
         }
-    
-        if let touchPosition = touches.first?.location(in: self) {
+        
+        if let touch = touches.first {
+            let touchLocation = touch.location(in: self)
             let normalTouchRange: ClosedRange<CGFloat> = 0.0...0.5
             let forceTouchRange: ClosedRange<CGFloat> = 0.5...CGFloat.greatestFiniteMagnitude
-            let touch = touches.first!
-
+            
+            // 👈 Use light touches as seek and heavy touches as evade
             switch touch.force {
             case normalTouchRange:
+                guard !shouldIgnoreReturnTouch else { return }
                 for boid in flock {
-                    boid.seek(touchPosition)
+                    boid.seek(touchLocation)
                 }
             case forceTouchRange:
-                if let touchPosition = touches.first?.location(in: self) {
-                    for boid in flock {
-                        boid.evade(touchPosition)
-                    }
+                for boid in flock {
+                    boid.evade(touchLocation)
                 }
+                shouldIgnoreReturnTouch = true
             default:
                 break
             }
-            
-            
-            
-            
+
         }
     }
 }

@@ -104,7 +104,7 @@ final class Bound: Behavior {
     func apply(toBoid boid:Boid) {
         self.velocity = CGPoint.zero
 
-        // Boids not within scenes can't be bound
+        // 🖼 Make sure each boid has a parent scene frame
         guard let frame = boid.parent?.frame else {
             return
         }
@@ -149,7 +149,7 @@ final class Seek: Behavior {
     }
     
     func apply(boid:Boid) {
-        let goalThreshhold: CGFloat = boid.radius
+        let goalThreshhold: CGFloat = boid.radius * 2
         
         // 🏁 Remove this behavior once the goal has been reached
         guard boid.position.outside(range: goalThreshhold, of: self.point) else {
@@ -184,6 +184,10 @@ final class Evade: Behavior {
         guard boid.position.within(range: fearThreshold, of: self.point) else {
             boid.currentSpeed = boid.maximumFlockSpeed
             boid.behaviors = boid.behaviors.filter() { $0 as? Evade !== self }
+            
+            // 📲 Restore standard Bounding behavior
+            boid.behaviors.append(Bound(intensity:0.4))
+            
             return
         }
 
@@ -195,7 +199,7 @@ final class Evade: Behavior {
 /**
  This behavior applies a tendency for a boid to move toward
  a particular point.  Rejoin is a temporary behavior that
- removes itself from the boid attains the minimum neighbo.
+ removes itself once the boid attains sufficient neighbors.
  */
 final class Rejoin: Behavior {
     var intensity: CGFloat = 0.0
@@ -209,16 +213,16 @@ final class Rejoin: Behavior {
         }
 
         // 🏁 Remove this behavior once the goal has been reached
-        guard neighbors.count < 1 else {
+        guard neighbors.count < 2 else {
             boid.currentSpeed = boid.maximumFlockSpeed
             boid.behaviors = boid.behaviors.filter() { $0 as? Rejoin !== self }
             return
         }
         
-        if boid.currentSpeed < (boid.maximumFlockSpeed+boid.maximumGoalSpeed)/2 {
+        if boid.currentSpeed < boid.maximumGoalSpeed {
             boid.currentSpeed *= 1.01
         }
         
-        self.velocity = (nearestNeighborPosition - boid.position)
+        self.velocity = CGPoint.zero//(nearestNeighborPosition - boid.position)
     }
 }
