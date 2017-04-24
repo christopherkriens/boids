@@ -48,7 +48,7 @@ class Boid: SKSpriteNode {
         
         super.init(texture: nil, color: SKColor.clear, size: CGSize())
         
-        // Configure SpriteNode properties
+        // 🛠 Configure SpriteNode properties
         self.anchorPoint = CGPoint(x: 0.5, y: 0.5)
         self.position = CGPoint.zero
         self.zPosition = 2
@@ -61,7 +61,7 @@ class Boid: SKSpriteNode {
 
         self.orientation = orientation
         self.size = CGSize(width: boidlabel.fontSize, height: boidlabel.fontSize)
-        self.behaviors = [Cohesion(intensity: 0.01), Separation(intensity: 0.02), Alignment(intensity: 0.2), Bound(intensity:0.4)]
+        self.behaviors = [Cohesion(intensity: 0.01), Separation(intensity: 0.01), Alignment(intensity: 0.3), Bound(intensity:0.4)]
     }
 
     required init?(coder aDecoder: NSCoder) {
@@ -102,17 +102,8 @@ class Boid: SKSpriteNode {
     
     func updatePerception() {
         // 🐠 Update this boid's flock perception within its neighborhood
-        if self.neighborhood.count > 0 {
-            self.perceivedDirection = (neighborhood.reduce(CGPoint.zero) { $0 + $1.velocity }) / CGFloat(self.neighborhood.count)
-            self.perceivedCenter = (neighborhood.reduce(CGPoint.zero) { $0 + $1.position }) / CGFloat(self.neighborhood.count)
-            self.currentSpeed = maximumFlockSpeed
-            
-            // 😭 Boid is on its own with no neighbors
-        } else {
-            if !self.behaviors.contains(where: { $0 is Rejoin }) {
-                self.behaviors.append(Rejoin(intensity: 0.3))
-            }
-        }
+        self.perceivedDirection = (self.neighborhood.reduce(CGPoint.zero) { $0 + $1.velocity }) / CGFloat(self.neighborhood.count)
+        self.perceivedCenter = (self.neighborhood.reduce(CGPoint.zero) { $0 + $1.position }) / CGFloat(self.neighborhood.count)
     }
     
     func updateBoid(inFlock flock: [Boid], deltaTime: TimeInterval) {
@@ -162,6 +153,9 @@ class Boid: SKSpriteNode {
         // 🔺 Stay rotated toward the direction of travel
         rotate()
         
+        // when rotation occurs on separation, it causes derpeing
+        // can we rotate based on the velocity minus the separation velocity?
+        
         // 📍 Update the position on screen
         self.position += self.velocity * (CGFloat(deltaTime)*60)
     }
@@ -197,6 +191,11 @@ fileprivate extension Boid {
             if self.neighbors(boid: flockBoid) {
                 neighbors.append(flockBoid)
             }
+        }
+        
+        // 😭 Boid is on its own with no neighbors, fall back to the flock
+        guard neighbors.count > 0 else {
+            return flock.filter() { $0 !== self }
         }
         return neighbors
     }

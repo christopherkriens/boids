@@ -12,8 +12,8 @@ class BoidScene: SKScene {
     private var flock = [Boid]()
     private var lastUpdateTime: TimeInterval = 0
     private var frameCount:Int = 0
-    private let neighborhoodUpdateFrequency = 37
-    private let perceptionUpdateFrequency = 31
+    private let neighborhoodUpdateFrequency = 31
+    private let perceptionUpdateFrequency = 37
     private var shouldIgnoreReturnTouch = false
 
     override func didMove(to view: SKView) {
@@ -53,7 +53,7 @@ class BoidScene: SKScene {
                 boid.evaluateNeighborhood(forFlock: self.flock)
             }
             
-            // 👁👁 The boid should recalculate its perception every so often
+            // 👀 The boid should recalculate its perception every so often
             if frameCount % perceptionUpdateFrequency == 0 {
                 boid.updatePerception()
             }
@@ -79,8 +79,8 @@ class BoidScene: SKScene {
         
         if let touch = touches.first {
             let touchLocation = touch.location(in: self)
-            let normalTouchRange: ClosedRange<CGFloat> = 0.0...0.5
-            let forceTouchRange: ClosedRange<CGFloat> = 0.5...CGFloat.greatestFiniteMagnitude
+            let normalTouchRange: ClosedRange<CGFloat> = 0.0...0.7
+            let forceTouchRange: ClosedRange<CGFloat> = 0.7...CGFloat.greatestFiniteMagnitude
             
             // 👈 Use light touches as seek and heavy touches as evade
             switch touch.force {
