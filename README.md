@@ -1,11 +1,12 @@
 <img src="/Boids/boids.png" width="420">
 
 #### Two dimensional implementation of Boids using SpriteKit and Swift 3.
-<img src="http://img.shields.io/badge/License-MIT-red.svg"> <img src="http://img.shields.io/badge/Platforms-iOS-lightgrey.svg"> <img src="http://img.shields.io/badge/Swift-3.1-orange.svg">
+
 ###### Now with more emotes! 🐟 🐔 🦄
 
 ## Overview
 Boids is an algorithm for simulating natural group flocking behavior.  Flocking is an emergent behavior accomplished by applying a set of simple rules on autonomous agents, called "boids".  Each boid operates independently, assessing its surrounding flock and adjusting its heading based on an evaluation of a set of basic rules.
+<br /><br /><img src="http://img.shields.io/badge/License-MIT-red.svg"> <img src="http://img.shields.io/badge/Platforms-iOS-lightgrey.svg"> <img src="http://img.shields.io/badge/Swift-3.1-orange.svg">
 
 ## Rules
 The standard flocking rules:
@@ -13,9 +14,9 @@ The standard flocking rules:
 > **1. Cohesion:** Steer toward the average position of nearby agents <br/><br/>**2. Alignment:** Maintain a heading similar to the average heading of nearby agents<br/><br/>**3. Separation:** Steer away from agents that are close to avoid crowding
 
 
-In addition to the standard flocking rules, I've added two:
+In addition to the standard flocking rules, I've added:
 
-> **4. Bound:** Steer away from the bounds of the device screen to keep agents in view<br/><br/>**5. Rejoin:** In the event that a boid has no nearby agents, increase speed and move toward the nearest agent
+> **4. Bound:** Steer away from the bounds of the device screen to keep agents in view
 
 
 ## Interaction
