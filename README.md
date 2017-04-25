@@ -23,11 +23,11 @@ In addition to the standard flocking rules, I've added:
 
 A touch adds a temporary rule:
 
-> **6. Seek:** Move toward the touch position
+> **6. Seek:** Move toward the current touch position
 
 A force touch adds a temporary rule:
 
-> **7. Evade:** Move away from the curent touch position
+> **7. Evade:** Move away from the current touch position
 
 
 ## Preview

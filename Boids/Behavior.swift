@@ -54,7 +54,7 @@ final class Cohesion: Behavior {
     var intensity: CGFloat = 0.0
 
     func apply(toBoid boid:Boid, withCenterOfMass centerOfMass: CGPoint) {
-        self.velocity = (centerOfMass - boid.position)
+        velocity = (centerOfMass - boid.position)
     }
 }
 
@@ -74,7 +74,7 @@ final class Separation: Behavior {
             guard flockBoid != boid else { continue }
             
             if boid.position.distance(from: flockBoid.position) < boid.radius {
-                self.velocity -= (flockBoid.position - boid.position)
+                velocity -= (flockBoid.position - boid.position)
             }
         }
     }
@@ -89,7 +89,7 @@ final class Alignment: Behavior {
     var intensity: CGFloat = 0.0
     
     func apply(toBoid boid:Boid, withAlignment alignment: CGPoint) {
-        self.velocity = (alignment - boid.velocity)
+        velocity = (alignment - boid.velocity)
     }
 }
 
@@ -102,7 +102,7 @@ final class Bound: Behavior {
     var intensity: CGFloat = 0.0
     
     func apply(toBoid boid:Boid) {
-        self.velocity = CGPoint.zero
+        velocity = CGPoint.zero
 
         // 🖼 Make sure each boid has a parent scene frame
         guard let frame = boid.parent?.frame else {
@@ -118,17 +118,17 @@ final class Bound: Behavior {
         let yMaximum = frame.size.height - borderMargin
         
         if boid.position.x < xMinimum {
-            self.velocity.x += borderAversion
+            velocity.x += borderAversion
         }
         if boid.position.x > xMaximum {
-            self.velocity.x -= borderAversion
+            velocity.x -= borderAversion
         }
         
         if boid.position.y < yMinimum {
-            self.velocity.y += borderAversion
+            velocity.y += borderAversion
         }
         if boid.position.y > yMaximum {
-            self.velocity.y -= borderAversion
+            velocity.y -= borderAversion
         }
     }
 }
@@ -152,13 +152,13 @@ final class Seek: Behavior {
         let goalThreshhold: CGFloat = boid.radius * 2
         
         // 🏁 Remove this behavior once the goal has been reached
-        guard boid.position.outside(range: goalThreshhold, of: self.point) else {
+        guard boid.position.outside(range: goalThreshhold, of: point) else {
             boid.currentSpeed = boid.maximumFlockSpeed
             boid.behaviors = boid.behaviors.filter() { $0 as? Seek !== self }
             return
         }
         boid.currentSpeed = boid.maximumGoalSpeed
-        self.velocity = (self.point - boid.position)
+        velocity = (point - boid.position)
     }
 }
 
@@ -181,7 +181,7 @@ final class Evade: Behavior {
         let fearThreshold: CGFloat = boid.radius * 4
 
         // 🏁 Remove this behavior once the goal has been reached
-        guard boid.position.within(range: fearThreshold, of: self.point) else {
+        guard boid.position.within(range: fearThreshold, of: point) else {
             boid.currentSpeed = boid.maximumFlockSpeed
             boid.behaviors = boid.behaviors.filter() { $0 as? Evade !== self }
             
@@ -191,7 +191,7 @@ final class Evade: Behavior {
             return
         }
 
-        self.velocity = -(self.point - boid.position)
+        velocity = -(point - boid.position)
         boid.currentSpeed = boid.maximumGoalSpeed
     }
 }
@@ -208,7 +208,7 @@ final class Rejoin: Behavior {
     func apply(boid:Boid, neighbors:[Boid], nearestNeighbor: Boid?) {
 
         // 🔎 Make sure a neighbor was sent and has a position
-        guard let nearestNeighborPosition = nearestNeighbor?.position else {
+        guard nearestNeighbor?.position != nil else {
             return
         }
 
