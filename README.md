@@ -46,6 +46,10 @@ addChild(boid)
 self.behaviors = [Cohesion(intensity: 0.1), Separation(intensity: 0.1), Alignment(intensity: 1.0)]
 ```
 
+## Performance
+Because each boid needs to iterate over the entire group, this runs in quadratic time _O(n²)_.  As a benchmark, the iPhone 6S can maintain 60fps when simulating up to 100 boids.
+
+
 ## Source Versioning
 * Xcode 8.3.2
 * iOS SDK 10.3.2
