@@ -1,4 +1,4 @@
-<img src="http://www.christopherkriens.com/github/boids.png" width="420" />
+<img src="/Boids/boids.png" width="420">
 
 #### Two dimensional implementation of Boids using SpriteKit and Swift 3.
 
@@ -32,7 +32,7 @@ A force touch adds a temporary rule:
 
 ## Preview
 
-<img src="http://www.christopherkriens.com/github/demo.gif" width="660" />
+<img src="/Boids/demo.gif" width="660">
 
 ## Usage
 ```swift
