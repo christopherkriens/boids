@@ -14,7 +14,8 @@ class BoidScene: SKScene {
     private var frameCount:Int = 0
     private let neighborhoodUpdateFrequency = 31
     private let perceptionUpdateFrequency = 37
-    private var shouldIgnoreReturnTouch = false
+    private var touchDownOccurred = false
+    private var feedbackGenerator: UIImpactFeedbackGenerator = { return UIImpactFeedbackGenerator(style: .medium) }()
 
     override func didMove(to view: SKView) {
         self.backgroundColor = SKColor.black
@@ -63,11 +64,11 @@ class BoidScene: SKScene {
     }
 
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
-        shouldIgnoreReturnTouch = false
+        touchDownOccurred = false
     }
     
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
-        // Make sure that Force Touch is available
+        // If Force Touch isn't available, just use Seek
         guard self.view?.traitCollection.forceTouchCapability == .available else {
             if let touchPosition = touches.first?.location(in: self) {
                 for boid in flock {
@@ -82,10 +83,13 @@ class BoidScene: SKScene {
             let normalTouchRange: ClosedRange<CGFloat> = 0.0...0.7
             let forceTouchRange: ClosedRange<CGFloat> = 0.7...CGFloat.greatestFiniteMagnitude
             
-            // Use light touches as seek and heavy touches as evade
+            // Prepare the Taptic Engine to reduce latency
+            feedbackGenerator.prepare()
+            
+            // Use light touches as Seek and heavy touches as Evade
             switch touch.force {
             case normalTouchRange:
-                guard !shouldIgnoreReturnTouch else { return }
+                guard !touchDownOccurred else { return }
                 for boid in flock {
                     boid.seek(touchLocation)
                 }
@@ -93,7 +97,12 @@ class BoidScene: SKScene {
                 for boid in flock {
                     boid.evade(touchLocation)
                 }
-                shouldIgnoreReturnTouch = true
+
+                // Provide haptic feedback when switching to Evade
+                if !touchDownOccurred {
+                    feedbackGenerator.impactOccurred()
+                }
+                touchDownOccurred = true
             default:
                 break
             }
