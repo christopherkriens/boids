@@ -8,7 +8,7 @@
 import SpriteKit
 
 class BoidScene: SKScene {
-    let numberOfBoids = 100
+    let numberOfBoids = 75
     private var flock = [Boid]()
     private var lastUpdateTime: TimeInterval = 0
     private var frameCount:Int = 0
@@ -23,12 +23,12 @@ class BoidScene: SKScene {
             // Create a new boid object with Character, e.g. : 🐠 🐟 🐡 🦄 🐔 🚜
             let boid = Boid(withCharacter: "🐠", fontSize: 30)
 
-            // 📱 Position the boid at a random scene location to start
+            // Position the boid at a random scene location to start
             let randomStartPositionX = round(CGFloat.random(between: 0, and: size.width))
             let randomStartPositionY = round(CGFloat.random(between: 0, and: size.height))
             boid.position = CGPoint(x: randomStartPositionX, y: randomStartPositionY)
             
-            // 🎲 Assign slightly randomized speeds for variety in flock movement
+            // Assign slightly randomized speeds for variety in flock movement
             let randomFlockSpeed = CGFloat.random(between: 2, and: 3)
             let randomGoalSpeed = CGFloat.random(between: 5, and: 6)
             boid.maximumFlockSpeed = randomFlockSpeed
@@ -48,12 +48,12 @@ class BoidScene: SKScene {
         frameCount += 1
 
         for boid in flock {
-            // 🏡🏠 The boid should reevaluate its neighborhood every so often
+            // The boid should reevaluate its neighborhood every so often
             if frameCount % neighborhoodUpdateFrequency == 0 {
                 boid.evaluateNeighborhood(forFlock: self.flock)
             }
             
-            // 👀 The boid should recalculate its perception every so often
+            // The boid should recalculate its perception every so often
             if frameCount % perceptionUpdateFrequency == 0 {
                 boid.updatePerception()
             }
@@ -67,7 +67,7 @@ class BoidScene: SKScene {
     }
     
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
-        // ⚠️ Make sure that Force Touch is available
+        // Make sure that Force Touch is available
         guard self.view?.traitCollection.forceTouchCapability == .available else {
             if let touchPosition = touches.first?.location(in: self) {
                 for boid in flock {
@@ -82,7 +82,7 @@ class BoidScene: SKScene {
             let normalTouchRange: ClosedRange<CGFloat> = 0.0...0.7
             let forceTouchRange: ClosedRange<CGFloat> = 0.7...CGFloat.greatestFiniteMagnitude
             
-            // 👈 Use light touches as seek and heavy touches as evade
+            // Use light touches as seek and heavy touches as evade
             switch touch.force {
             case normalTouchRange:
                 guard !shouldIgnoreReturnTouch else { return }
@@ -97,7 +97,6 @@ class BoidScene: SKScene {
             default:
                 break
             }
-
         }
     }
 }

@@ -22,46 +22,40 @@ class Boid: SKSpriteNode {
     var maximumGoalSpeed: CGFloat = 4
     var currentSpeed: CGFloat = 2
     var velocity = CGPoint.zero
-    var sceneFrame = CGRect.zero
     var behaviors = [Behavior]()
-    var neighborhood: [Boid] = [Boid]()
-    var orientation:BoidOrientation = .west
-
     let momentum: CGFloat = 6
     let visionAngle: CGFloat = 180
     
-    private var perceivedCenter = CGPoint.zero
-    private var perceivedDirection = CGPoint.zero
+    fileprivate var sceneFrame = CGRect.zero
+    fileprivate var neighborhood: [Boid] = [Boid]()
+    fileprivate var orientation:BoidOrientation = .west
+    fileprivate var perceivedCenter = CGPoint.zero
+    fileprivate var perceivedDirection = CGPoint.zero
     
-    lazy var radius: CGFloat = {
-        return min(self.size.width, self.size.height)
-    }()
-    
-    lazy var neighborhoodSize:CGFloat = {
-        return self.radius * 4
-    }()
+    lazy var radius: CGFloat = { return min(self.size.width, self.size.height) }()
+    lazy var neighborhoodSize:CGFloat = { return self.radius * 4 }()
 
     
     // MARK: - Initialization
     
-    init(withCharacter character: Character = "❌", fontSize font: CGFloat = 36, direction: BoidOrientation = .west) {
+    public init(withCharacter character: Character = "❌", fontSize font: CGFloat = 36, orientation: BoidOrientation = .west) {
         
         super.init(texture: nil, color: SKColor.clear, size: CGSize())
         
-        // 🛠 Configure SpriteNode properties
-        anchorPoint = CGPoint(x: 0.5, y: 0.5)
-        position = CGPoint.zero
-        zPosition = 2
-        name = "boid"
+        // Configure SpriteNode properties
+        self.anchorPoint = CGPoint(x: 0.5, y: 0.5)
+        self.position = CGPoint.zero
+        self.zPosition = 2
+        self.name = "boid"
         
-        // 🏷 Create the label and set the character and size
+        // Create the label and set the character and size
         let boidlabel = SKLabelNode(text: String(character))
         boidlabel.fontSize = font
-        addChild(boidlabel)
-        
-        orientation = direction
-        size = CGSize(width: boidlabel.fontSize, height: boidlabel.fontSize)
-        behaviors = [Cohesion(intensity: 0.01), Separation(intensity: 0.01), Alignment(intensity: 0.3), Bound(intensity:0.4)]
+        self.addChild(boidlabel)
+
+        self.orientation = orientation
+        self.size = CGSize(width: boidlabel.fontSize, height: boidlabel.fontSize)
+        self.behaviors = [Cohesion(intensity: 0.01), Separation(intensity: 0.01), Alignment(intensity: 0.3), Bound(intensity:0.4)]
     }
 
     required init?(coder aDecoder: NSCoder) {
@@ -72,57 +66,58 @@ class Boid: SKSpriteNode {
     // MARK: - Updates
 
     func seek(_ point:CGPoint) {
-        for thisBehavior in behaviors {
+        // If there is a seek behavior in place, reuse it
+        for thisBehavior in self.behaviors {
             if let seek = thisBehavior as? Seek {
                 seek.point = point
                 return
             }
         }
-        behaviors.append(Seek(intensity: 0.03, point: point))
+        self.behaviors.append(Seek(intensity: 0.03, point: point))
     }
 
     func evade(_ point:CGPoint) {
-        // 🗑 Remove any existing Bound and Seek behaviors
-        behaviors = behaviors.filter() { !($0 is Seek) }
-        behaviors = behaviors.filter() { !($0 is Bound) }
+        // Remove any existing Bound and Seek behaviors
+        self.behaviors = self.behaviors.filter() { !($0 is Seek) }
+        self.behaviors = self.behaviors.filter() { !($0 is Bound) }
         
-        // ♻️ If there is an evade behavior in place, reuse it
-        for thisBehavior in behaviors {
+        // If there is an evade behavior in place, reuse it
+        for thisBehavior in self.behaviors {
             if let evade = thisBehavior as? Evade {
                 evade.point = point
                 return
             }
         }
-        behaviors.append(Evade(intensity: 0.2, point: point))
+        self.behaviors.append(Evade(intensity: 0.2, point: point))
     }
 
     func evaluateNeighborhood(forFlock flock: [Boid]) {
-        neighborhood = findNeighbors(inFlock: flock)
+        self.neighborhood = self.findNeighbors(inFlock: flock)
     }
     
     func updatePerception() {
-        // 🐠 Update this boid's flock perception within its neighborhood
-        perceivedDirection = (neighborhood.reduce(CGPoint.zero) { $0 + $1.velocity }) / CGFloat(neighborhood.count)
-        perceivedCenter = (neighborhood.reduce(CGPoint.zero) { $0 + $1.position }) / CGFloat(neighborhood.count)
+        // Update this boid's flock perception within its neighborhood
+        self.perceivedDirection = (self.neighborhood.reduce(CGPoint.zero) { $0 + $1.velocity }) / CGFloat(self.neighborhood.count)
+        self.perceivedCenter = (self.neighborhood.reduce(CGPoint.zero) { $0 + $1.position }) / CGFloat(self.neighborhood.count)
     }
     
     func updateBoid(inFlock flock: [Boid], deltaTime: TimeInterval) {
-        // ✏️ Apply each of the boid's behaviors
-        for behavior in behaviors {
+        // Apply each of the boid's behaviors
+        for behavior in self.behaviors {
             let behaviorClass = String(describing: type(of: behavior))
             
             switch behaviorClass {
             case String(describing: Cohesion.self):
                 if let cohension = behavior as? Cohesion {
-                    cohension.apply(toBoid: self, withCenterOfMass:perceivedCenter)
+                    cohension.apply(toBoid: self, withCenterOfMass:self.perceivedCenter)
                 }
             case String(describing: Separation.self):
                 if let separation = behavior as? Separation {
-                    separation.apply(toBoid: self, inFlock: neighborhood)
+                    separation.apply(toBoid: self, inFlock: self.neighborhood)
                 }
             case String(describing: Alignment.self):
                 if let alignment = behavior as? Alignment {
-                    alignment.apply(toBoid: self, withAlignment: perceivedDirection)
+                    alignment.apply(toBoid: self, withAlignment: self.perceivedDirection)
                 }
             case String(describing: Bound.self):
                 if let bound = behavior as? Bound {
@@ -138,26 +133,23 @@ class Boid: SKSpriteNode {
                 }
             case String(describing: Rejoin.self):
                 if let panic = behavior as? Rejoin {
-                    panic.apply(boid:self, neighbors:neighborhood, nearestNeighbor: nearestNeighbor(flock: flock))
+                    panic.apply(boid:self, neighbors:self.neighborhood, nearestNeighbor: nearestNeighbor(flock: flock))
                 }
             default: break
             }
         }
 
-        // 🤓 Sum the velocities supplied by each of the behaviors
-        velocity += (behaviors.reduce(velocity) { $0 + $1.scaledVelocity }) / momentum
+        // Sum the velocities supplied by each of the behaviors
+        self.velocity += (self.behaviors.reduce(self.velocity) { $0 + $1.scaledVelocity }) / self.momentum
         
-        // 🚧 Limit the maximum velocity per update
+        // Limit the maximum velocity per update
         applySpeedLimit()
         
-        // 🔺 Stay rotated toward the direction of travel
+        // Stay rotated toward the direction of travel
         rotate()
         
-        // when rotation occurs on separation, it causes derpeing
-        // can we rotate based on the velocity minus the separation velocity?
-        
-        // 📍 Update the position on screen
-        position += velocity * (CGFloat(deltaTime)*60)
+        // Update the position on screen
+        self.position += self.velocity * (CGFloat(deltaTime)*60)
     }
 }
 
@@ -169,10 +161,10 @@ fileprivate extension Boid {
      Applies the boid's current speed limit to its velocity
     */
     func applySpeedLimit() {
-        let vector = velocity.length
-        if (vector > currentSpeed) {
-            let unitVector = velocity / vector
-            velocity = unitVector * currentSpeed
+        let vector = self.velocity.length
+        if (vector > self.currentSpeed) {
+            let unitVector = self.velocity / vector
+            self.velocity = unitVector * self.currentSpeed
         }
     }
     
@@ -188,12 +180,12 @@ fileprivate extension Boid {
         
         for flockBoid in flock {
             guard flockBoid != self else { continue }
-            if neighbors(boid: flockBoid) {
+            if self.neighbors(boid: flockBoid) {
                 neighbors.append(flockBoid)
             }
         }
         
-        // 😭 Boid is on its own with no neighbors, fall back to the flock
+        // Boid is on its own with no neighbors, fall back to the flock
         guard neighbors.count > 0 else {
             return flock.filter() { $0 !== self }
         }
@@ -208,9 +200,9 @@ fileprivate extension Boid {
      - returns: `Bool` - Whether or not this boid is a neighbor to the provided boid.
      */
     func neighbors(boid: Boid) -> Bool {
-        if position.distance(from: boid.position) < neighborhoodSize {
-            let lowerBound = boid.velocity.pointByRotatingAround(boid.position, byDegrees: -visionAngle/2)
-            let upperBound = boid.velocity.pointByRotatingAround(boid.position, byDegrees: visionAngle/2)
+        if self.position.distance(from: boid.position) < self.neighborhoodSize {
+            let lowerBound = boid.velocity.pointByRotatingAround(boid.position, byDegrees: -self.visionAngle/2)
+            let upperBound = boid.velocity.pointByRotatingAround(boid.position, byDegrees: self.visionAngle/2)
            
             if (lowerBound*boid.velocity) * (lowerBound*upperBound) >= 0 && (upperBound*boid.velocity) * (upperBound*lowerBound) >= 0 {
                 return true
@@ -233,7 +225,7 @@ fileprivate extension Boid {
         }
 
         for flockBoid in flock {
-            if position.distance(from: flockBoid.position) < position.distance(from: nearestBoid.position) {
+            if self.position.distance(from: flockBoid.position) < self.position.distance(from: nearestBoid.position) {
                 nearestBoid = flockBoid
             }
         }
@@ -246,6 +238,6 @@ fileprivate extension Boid {
      - orientation: A flock of boids to search
      */
     func rotate() {
-        zRotation = CGFloat(-atan2(Double(velocity.x), Double(velocity.y))) - orientation.rawValue.degreesToRadians
+        self.zRotation = CGFloat(-atan2(Double(velocity.x), Double(velocity.y))) - self.orientation.rawValue.degreesToRadians
     }
 }
