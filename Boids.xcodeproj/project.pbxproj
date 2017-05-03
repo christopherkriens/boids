@@ -14,7 +14,6 @@
 		E279CBEC1E949A5A00A535DE /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E279CBEB1E949A5A00A535DE /* Assets.xcassets */; };
 		E279CBEF1E949A5A00A535DE /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = E279CBED1E949A5A00A535DE /* LaunchScreen.storyboard */; };
 		E293E53C1E9ED71200D6CDC4 /* CGFloatExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = E293E53B1E9ED71200D6CDC4 /* CGFloatExtensions.swift */; };
-		E2CFC96F1EAB18920023C3D8 /* README.md in Sources */ = {isa = PBXBuildFile; fileRef = E2CFC96E1EAB18920023C3D8 /* README.md */; };
 		E2FDA0461E9546B3007C8F90 /* Boid.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2FDA0451E9546B3007C8F90 /* Boid.swift */; };
 		E2FDA0481E954B1E007C8F90 /* Behavior.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2FDA0471E954B1E007C8F90 /* Behavior.swift */; };
 		E2FDA04D1E956B2D007C8F90 /* CGPointExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2FDA04C1E956B2D007C8F90 /* CGPointExtensions.swift */; };
@@ -168,7 +167,6 @@
 				E279CBDF1E949A5A00A535DE /* AppDelegate.swift in Sources */,
 				E2FDA0461E9546B3007C8F90 /* Boid.swift in Sources */,
 				E2FDA04D1E956B2D007C8F90 /* CGPointExtensions.swift in Sources */,
-				E2CFC96F1EAB18920023C3D8 /* README.md in Sources */,
 				E2FDA0481E954B1E007C8F90 /* Behavior.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
