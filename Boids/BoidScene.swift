@@ -15,7 +15,7 @@ class BoidScene: SKScene {
     private let neighborhoodUpdateFrequency = 31
     private let perceptionUpdateFrequency = 37
     private var touchDownOccurred = false
-    private var feedbackGenerator: UIImpactFeedbackGenerator = { return UIImpactFeedbackGenerator(style: .medium) }()
+    private var feedbackGenerator: UIImpactFeedbackGenerator = UIImpactFeedbackGenerator(style: .medium)
 
     override func didMove(to view: SKView) {
         self.backgroundColor = SKColor.black

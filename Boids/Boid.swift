@@ -78,8 +78,7 @@ class Boid: SKSpriteNode {
 
     func evade(_ point:CGPoint) {
         // Remove any existing Bound and Seek behaviors
-        self.behaviors = self.behaviors.filter() { !($0 is Seek) }
-        self.behaviors = self.behaviors.filter() { !($0 is Bound) }
+        self.behaviors = self.behaviors.filter() { !($0 is Seek) && !($0 is Bound) }
         
         // If there is an evade behavior in place, reuse it
         for thisBehavior in self.behaviors {
@@ -140,7 +139,7 @@ class Boid: SKSpriteNode {
         }
 
         // Sum the velocities supplied by each of the behaviors
-        self.velocity += (self.behaviors.reduce(self.velocity) { $0 + $1.scaledVelocity }) / self.momentum
+        self.velocity += self.behaviors.reduce(self.velocity) { $0 + $1.scaledVelocity } / self.momentum
         
         // Limit the maximum velocity per update
         applySpeedLimit()
@@ -149,7 +148,7 @@ class Boid: SKSpriteNode {
         rotate()
         
         // Update the position on screen
-        self.position += self.velocity * (CGFloat(deltaTime)*60)
+        self.position += self.velocity * (CGFloat(deltaTime) * 60)
     }
 }
 
@@ -204,7 +203,7 @@ fileprivate extension Boid {
             let lowerBound = boid.velocity.pointByRotatingAround(boid.position, byDegrees: -self.visionAngle/2)
             let upperBound = boid.velocity.pointByRotatingAround(boid.position, byDegrees: self.visionAngle/2)
            
-            if (lowerBound*boid.velocity) * (lowerBound*upperBound) >= 0 && (upperBound*boid.velocity) * (upperBound*lowerBound) >= 0 {
+            if (lowerBound * boid.velocity) * (lowerBound * upperBound) >= 0 && (upperBound * boid.velocity) * (upperBound * lowerBound) >= 0 {
                 return true
             }
         }
