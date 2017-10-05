@@ -103,38 +103,33 @@ class Boid: SKSpriteNode {
     func updateBoid(inFlock flock: [Boid], deltaTime: TimeInterval) {
         // Apply each of the boid's behaviors
         for behavior in behaviors {
-            let behaviorClass = String(describing: type(of: behavior))
-
-            switch behaviorClass {
-            case String(describing: Cohesion.self):
-                if let cohension = behavior as? Cohesion {
-                    cohension.apply(toBoid: self, withCenterOfMass:perceivedCenter)
-                }
-            case String(describing: Separation.self):
-                if let separation = behavior as? Separation {
-                    separation.apply(toBoid: self, inFlock: neighborhood)
-                }
-            case String(describing: Alignment.self):
-                if let alignment = behavior as? Alignment {
-                    alignment.apply(toBoid: self, withAlignment: perceivedDirection)
-                }
-            case String(describing: Bound.self):
-                if let bound = behavior as? Bound {
-                    bound.apply(toBoid: self)
-                }
-            case String(describing: Seek.self):
-                if let seek = behavior as? Seek {
-                    seek.apply(boid: self)
-                }
-            case String(describing: Evade.self):
-                if let evade = behavior as? Evade {
-                    evade.apply(boid: self)
-                }
-            case String(describing: Rejoin.self):
-                if let panic = behavior as? Rejoin {
-                    panic.apply(boid:self, neighbors:neighborhood, nearestNeighbor: nearestNeighbor(flock: flock))
-                }
-            default: break
+            if let cohension = behavior as? Cohesion {
+                cohension.apply(toBoid: self, withCenterOfMass:perceivedCenter)
+                continue
+            }
+            if let separation = behavior as? Separation {
+                separation.apply(toBoid: self, inFlock: neighborhood)
+                continue
+            }
+            if let alignment = behavior as? Alignment {
+                alignment.apply(toBoid: self, withAlignment: perceivedDirection)
+                continue
+            }
+            if let bound = behavior as? Bound {
+                bound.apply(toBoid: self)
+                continue
+            }
+            if let seek = behavior as? Seek {
+                seek.apply(boid: self)
+                continue
+            }
+            if let evade = behavior as? Evade {
+                evade.apply(boid: self)
+                continue
+            }
+            if let panic = behavior as? Rejoin {
+                panic.apply(boid:self, neighbors:neighborhood, nearestNeighbor: nearestNeighbor(flock: flock))
+                continue
             }
         }
 

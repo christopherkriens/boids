@@ -7,7 +7,7 @@ import GameplayKit
  All behaviors must adopt this protocol.  Behaviors are expected to calculate
  a result vector based on the behavior rules and apply an intensity
  */
-protocol Behavior {
+protocol Behavior: AnyObject {
     /// The result velocity after the calculation
     var velocity: CGPoint { get }
     
