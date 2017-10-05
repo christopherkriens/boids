@@ -25,21 +25,21 @@ class Boid: SKSpriteNode {
     var behaviors = [Behavior]()
     let momentum: CGFloat = 6
     let visionAngle: CGFloat = 180
-    
+
     fileprivate var sceneFrame = CGRect.zero
     fileprivate var neighborhood: [Boid] = [Boid]()
     fileprivate var orientation:BoidOrientation = .west
     fileprivate var perceivedCenter = CGPoint.zero
     fileprivate var perceivedDirection = CGPoint.zero
-    
+
     lazy var radius: CGFloat = { return min(size.width, size.height) }()
     lazy var neighborhoodSize:CGFloat = { return radius * 4 }()
 
-    
+
     // MARK: - Initialization
+
+    public init(withCharacter character: Character = "❌", fontSize: CGFloat = 36, orientation: BoidOrientation = .west) {
     
-    public init(withCharacter character: Character = "❌", fontSize font: CGFloat = 36, orientation: BoidOrientation = .west) {
-        
         super.init(texture: nil, color: SKColor.clear, size: CGSize())
         
         // Configure SpriteNode properties
@@ -50,7 +50,7 @@ class Boid: SKSpriteNode {
         
         // Create the label and set the character and size
         let boidlabel = SKLabelNode(text: String(character))
-        boidlabel.fontSize = font
+        boidlabel.fontSize = fontSize
         addChild(boidlabel)
 
         self.orientation = orientation

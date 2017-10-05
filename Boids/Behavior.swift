@@ -111,20 +111,20 @@ final class Bound: Behavior {
         let borderMargin:CGFloat = 100
         let borderAversion: CGFloat = boid.currentSpeed
 
-        let horizontalRange = borderMargin...frame.size.width - borderMargin
-        let verticalRange = borderMargin...frame.size.height - borderMargin
+        let horizontal = borderMargin...frame.size.width - borderMargin
+        let vertical = borderMargin...frame.size.height - borderMargin
         
-        if boid.position.x < horizontalRange.lowerBound {
+        if boid.position.x < horizontal.lowerBound {
             velocity.x += borderAversion
         }
-        if boid.position.x > horizontalRange.upperBound {
+        if boid.position.x > horizontal.upperBound {
             velocity.x -= borderAversion
         }
         
-        if boid.position.y < verticalRange.lowerBound {
+        if boid.position.y < vertical.lowerBound {
             velocity.y += borderAversion
         }
-        if boid.position.y > verticalRange.upperBound {
+        if boid.position.y > vertical.upperBound {
             velocity.y -= borderAversion
         }
     }
