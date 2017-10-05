@@ -32,8 +32,8 @@ class Boid: SKSpriteNode {
     fileprivate var perceivedCenter = CGPoint.zero
     fileprivate var perceivedDirection = CGPoint.zero
     
-    lazy var radius: CGFloat = { return min(self.size.width, self.size.height) }()
-    lazy var neighborhoodSize:CGFloat = { return self.radius * 4 }()
+    lazy var radius: CGFloat = { return min(size.width, size.height) }()
+    lazy var neighborhoodSize:CGFloat = { return radius * 4 }()
 
     
     // MARK: - Initialization
@@ -43,19 +43,19 @@ class Boid: SKSpriteNode {
         super.init(texture: nil, color: SKColor.clear, size: CGSize())
         
         // Configure SpriteNode properties
-        self.anchorPoint = CGPoint(x: 0.5, y: 0.5)
-        self.position = CGPoint.zero
-        self.zPosition = 2
-        self.name = "boid"
+        anchorPoint = CGPoint(x: 0.5, y: 0.5)
+        position = CGPoint.zero
+        zPosition = 2
+        name = "boid"
         
         // Create the label and set the character and size
         let boidlabel = SKLabelNode(text: String(character))
         boidlabel.fontSize = font
-        self.addChild(boidlabel)
+        addChild(boidlabel)
 
         self.orientation = orientation
-        self.size = CGSize(width: boidlabel.fontSize, height: boidlabel.fontSize)
-        self.behaviors = [Cohesion(intensity: 0.01), Separation(intensity: 0.01), Alignment(intensity: 0.3), Bound(intensity:0.4)]
+        size = CGSize(width: boidlabel.fontSize, height: boidlabel.fontSize)
+        behaviors = [Cohesion(intensity: 0.01), Separation(intensity: 0.01), Alignment(intensity: 0.3), Bound(intensity:0.4)]
     }
 
     required init?(coder aDecoder: NSCoder) {
@@ -67,56 +67,56 @@ class Boid: SKSpriteNode {
 
     func seek(_ point:CGPoint) {
         // If there is a seek behavior in place, reuse it
-        for thisBehavior in self.behaviors {
+        for thisBehavior in behaviors {
             if let seek = thisBehavior as? Seek {
                 seek.point = point
                 return
             }
         }
-        self.behaviors.append(Seek(intensity: 0.03, point: point))
+        behaviors.append(Seek(intensity: 0.03, point: point))
     }
 
     func evade(_ point:CGPoint) {
         // Remove any existing Bound and Seek behaviors
-        self.behaviors = self.behaviors.filter() { !($0 is Seek) && !($0 is Bound) }
+        behaviors = behaviors.filter() { !($0 is Seek) && !($0 is Bound) }
         
         // If there is an evade behavior in place, reuse it
-        for thisBehavior in self.behaviors {
+        for thisBehavior in behaviors {
             if let evade = thisBehavior as? Evade {
                 evade.point = point
                 return
             }
         }
-        self.behaviors.append(Evade(intensity: 0.2, point: point))
+        behaviors.append(Evade(intensity: 0.2, point: point))
     }
 
     func evaluateNeighborhood(forFlock flock: [Boid]) {
-        self.neighborhood = self.findNeighbors(inFlock: flock)
+        neighborhood = findNeighbors(inFlock: flock)
     }
-    
+
     func updatePerception() {
         // Update this boid's flock perception within its neighborhood
-        self.perceivedDirection = (self.neighborhood.reduce(CGPoint.zero) { $0 + $1.velocity }) / CGFloat(self.neighborhood.count)
-        self.perceivedCenter = (self.neighborhood.reduce(CGPoint.zero) { $0 + $1.position }) / CGFloat(self.neighborhood.count)
+        perceivedDirection = (neighborhood.reduce(CGPoint.zero) { $0 + $1.velocity }) / CGFloat(neighborhood.count)
+        perceivedCenter = (neighborhood.reduce(CGPoint.zero) { $0 + $1.position }) / CGFloat(neighborhood.count)
     }
-    
+
     func updateBoid(inFlock flock: [Boid], deltaTime: TimeInterval) {
         // Apply each of the boid's behaviors
-        for behavior in self.behaviors {
+        for behavior in behaviors {
             let behaviorClass = String(describing: type(of: behavior))
-            
+
             switch behaviorClass {
             case String(describing: Cohesion.self):
                 if let cohension = behavior as? Cohesion {
-                    cohension.apply(toBoid: self, withCenterOfMass:self.perceivedCenter)
+                    cohension.apply(toBoid: self, withCenterOfMass:perceivedCenter)
                 }
             case String(describing: Separation.self):
                 if let separation = behavior as? Separation {
-                    separation.apply(toBoid: self, inFlock: self.neighborhood)
+                    separation.apply(toBoid: self, inFlock: neighborhood)
                 }
             case String(describing: Alignment.self):
                 if let alignment = behavior as? Alignment {
-                    alignment.apply(toBoid: self, withAlignment: self.perceivedDirection)
+                    alignment.apply(toBoid: self, withAlignment: perceivedDirection)
                 }
             case String(describing: Bound.self):
                 if let bound = behavior as? Bound {
@@ -132,14 +132,14 @@ class Boid: SKSpriteNode {
                 }
             case String(describing: Rejoin.self):
                 if let panic = behavior as? Rejoin {
-                    panic.apply(boid:self, neighbors:self.neighborhood, nearestNeighbor: nearestNeighbor(flock: flock))
+                    panic.apply(boid:self, neighbors:neighborhood, nearestNeighbor: nearestNeighbor(flock: flock))
                 }
             default: break
             }
         }
 
         // Sum the velocities supplied by each of the behaviors
-        self.velocity += self.behaviors.reduce(self.velocity) { $0 + $1.scaledVelocity } / self.momentum
+        velocity += behaviors.reduce(velocity) { $0 + $1.scaledVelocity } / momentum
         
         // Limit the maximum velocity per update
         applySpeedLimit()
@@ -148,7 +148,7 @@ class Boid: SKSpriteNode {
         rotate()
         
         // Update the position on screen
-        self.position += self.velocity * (CGFloat(deltaTime) * 60)
+        position += velocity * (CGFloat(deltaTime) * 60)
     }
 }
 
@@ -160,10 +160,10 @@ fileprivate extension Boid {
      Applies the boid's current speed limit to its velocity
     */
     func applySpeedLimit() {
-        let vector = self.velocity.length
-        if (vector > self.currentSpeed) {
-            let unitVector = self.velocity / vector
-            self.velocity = unitVector * self.currentSpeed
+        let vector = velocity.length
+        if (vector > currentSpeed) {
+            let unitVector = velocity / vector
+            velocity = unitVector * currentSpeed
         }
     }
     
@@ -199,9 +199,9 @@ fileprivate extension Boid {
      - returns: `Bool` - Whether or not this boid is a neighbor to the provided boid.
      */
     func neighbors(boid: Boid) -> Bool {
-        if self.position.distance(from: boid.position) < self.neighborhoodSize {
-            let lowerBound = boid.velocity.pointByRotatingAround(boid.position, byDegrees: -self.visionAngle/2)
-            let upperBound = boid.velocity.pointByRotatingAround(boid.position, byDegrees: self.visionAngle/2)
+        if position.distance(from: boid.position) < neighborhoodSize {
+            let lowerBound = boid.velocity.pointByRotatingAround(boid.position, byDegrees: -visionAngle/2)
+            let upperBound = boid.velocity.pointByRotatingAround(boid.position, byDegrees: visionAngle/2)
            
             if (lowerBound * boid.velocity) * (lowerBound * upperBound) >= 0 && (upperBound * boid.velocity) * (upperBound * lowerBound) >= 0 {
                 return true
@@ -224,7 +224,7 @@ fileprivate extension Boid {
         }
 
         for flockBoid in flock {
-            if self.position.distance(from: flockBoid.position) < self.position.distance(from: nearestBoid.position) {
+            if position.distance(from: flockBoid.position) < position.distance(from: nearestBoid.position) {
                 nearestBoid = flockBoid
             }
         }
@@ -237,6 +237,6 @@ fileprivate extension Boid {
      - orientation: A flock of boids to search
      */
     func rotate() {
-        self.zRotation = CGFloat(-atan2(Double(velocity.x), Double(velocity.y))) - self.orientation.rawValue.degreesToRadians
+        zRotation = CGFloat(-atan2(Double(velocity.x), Double(velocity.y))) - orientation.rawValue.degreesToRadians
     }
 }

@@ -11,16 +11,16 @@ class BoidScene: SKScene {
     let numberOfBoids = 75
     private var flock = [Boid]()
     private var lastUpdateTime: TimeInterval = 0
-    private var frameCount:Int = 0
+    private var frameCount: Int = 0
     private let neighborhoodUpdateFrequency = 31
     private let perceptionUpdateFrequency = 37
     private var touchDownOccurred = false
     private var feedbackGenerator: UIImpactFeedbackGenerator = UIImpactFeedbackGenerator(style: .medium)
 
     override func didMove(to view: SKView) {
-        self.backgroundColor = SKColor.black
+        backgroundColor = SKColor.black
         
-        for i in 0..<self.numberOfBoids {
+        for i in 0..<numberOfBoids {
             // Create a new boid object with Character, e.g. : 🐠 🐟 🐡 🦄 🐔 🚜
             let boid = Boid(withCharacter: "🐠", fontSize: 30)
 
@@ -37,21 +37,21 @@ class BoidScene: SKScene {
             
             boid.name = "boid-\(i)"
             
-            self.flock.append(boid)
+            flock.append(boid)
             addChild(boid)
         }
     }
 
     override func update(_ currentTime: TimeInterval) {
-        let deltaTime: TimeInterval = self.lastUpdateTime == 0 ? 0 : currentTime - self.lastUpdateTime
-        self.lastUpdateTime = currentTime
+        let deltaTime: TimeInterval = lastUpdateTime == 0 ? 0 : currentTime - lastUpdateTime
+        lastUpdateTime = currentTime
 
         frameCount += 1
 
         for boid in flock {
             // The boid should reevaluate its neighborhood every so often
             if frameCount % neighborhoodUpdateFrequency == 0 {
-                boid.evaluateNeighborhood(forFlock: self.flock)
+                boid.evaluateNeighborhood(forFlock: flock)
             }
             
             // The boid should recalculate its perception every so often
@@ -59,7 +59,7 @@ class BoidScene: SKScene {
                 boid.updatePerception()
             }
             
-            boid.updateBoid(inFlock: self.flock, deltaTime: deltaTime)
+            boid.updateBoid(inFlock: flock, deltaTime: deltaTime)
         }
     }
 
@@ -69,7 +69,7 @@ class BoidScene: SKScene {
     
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
         // If Force Touch isn't available, just use Seek
-        guard self.view?.traitCollection.forceTouchCapability == .available else {
+        guard view?.traitCollection.forceTouchCapability == .available else {
             if let touchPosition = touches.first?.location(in: self) {
                 for boid in flock {
                     boid.seek(touchPosition)

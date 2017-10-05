@@ -12,9 +12,9 @@ class BoidViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        if let view = self.view as! SKView? {
+        if let view = view as! SKView? {
             // Create a BoidScene
-            let scene = BoidScene(size: self.view.bounds.size)
+            let scene = BoidScene(size: view.bounds.size)
             scene.scaleMode = .aspectFit
                 
             // Present the Scene
