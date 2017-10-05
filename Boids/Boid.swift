@@ -127,10 +127,6 @@ class Boid: SKSpriteNode {
                 evade.apply(boid: self)
                 continue
             }
-            if let panic = behavior as? Rejoin {
-                panic.apply(boid:self, neighbors:neighborhood, nearestNeighbor: nearestNeighbor(flock: flock))
-                continue
-            }
         }
 
         // Sum the velocities supplied by each of the behaviors

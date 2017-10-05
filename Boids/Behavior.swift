@@ -111,22 +111,20 @@ final class Bound: Behavior {
         let borderMargin:CGFloat = 100
         let borderAversion: CGFloat = boid.currentSpeed
 
-        let xMinimum = borderMargin
-        let yMinimum = borderMargin
-        let xMaximum = frame.size.width - borderMargin
-        let yMaximum = frame.size.height - borderMargin
+        let horizontalRange = borderMargin...frame.size.width - borderMargin
+        let verticalRange = borderMargin...frame.size.height - borderMargin
         
-        if boid.position.x < xMinimum {
+        if boid.position.x < horizontalRange.lowerBound {
             velocity.x += borderAversion
         }
-        if boid.position.x > xMaximum {
+        if boid.position.x > horizontalRange.upperBound {
             velocity.x -= borderAversion
         }
         
-        if boid.position.y < yMinimum {
+        if boid.position.y < verticalRange.lowerBound {
             velocity.y += borderAversion
         }
-        if boid.position.y > yMaximum {
+        if boid.position.y > verticalRange.upperBound {
             velocity.y -= borderAversion
         }
     }
@@ -192,36 +190,5 @@ final class Evade: Behavior {
 
         velocity = -(point - boid.position)
         boid.currentSpeed = boid.maximumGoalSpeed
-    }
-}
-
-/**
- This behavior applies a tendency for a boid to move toward
- a particular point.  Rejoin is a temporary behavior that
- removes itself once the boid attains sufficient neighbors.
- */
-final class Rejoin: Behavior {
-    var intensity: CGFloat = 0.0
-    var velocity: CGPoint = CGPoint.zero
-
-    func apply(boid:Boid, neighbors:[Boid], nearestNeighbor: Boid?) {
-
-        // Make sure a neighbor was sent and has a position
-        guard nearestNeighbor?.position != nil else {
-            return
-        }
-
-        // Remove this behavior once the goal has been reached
-        guard neighbors.count < 2 else {
-            boid.currentSpeed = boid.maximumFlockSpeed
-            boid.behaviors = boid.behaviors.filter() { $0 as? Rejoin !== self }
-            return
-        }
-        
-        if boid.currentSpeed < boid.maximumGoalSpeed {
-            boid.currentSpeed *= 1.01
-        }
-        
-        velocity = CGPoint.zero//(nearestNeighborPosition - boid.position)
     }
 }
