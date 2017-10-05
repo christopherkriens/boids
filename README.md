@@ -1,6 +1,6 @@
 <img src="/Artwork/boids.png" width="420">
 
-#### Two dimensional implementation of Boids using SpriteKit and Swift 3.
+#### Two dimensional implementation of Boids using SpriteKit and Swift 4.
 
 ###### Now with more emotes! 🐟 🐔 🦄
 
@@ -51,9 +51,9 @@ Because each boid needs to iterate over the entire group, this runs in quadratic
 
 
 ## Source Versioning
-* Xcode 8.3.2
-* iOS SDK 10.3.2
-* Swift 3.1
+* Xcode 9.0
+* iOS SDK 11.0.2
+* Swift 4
 
 ## Credit
 
