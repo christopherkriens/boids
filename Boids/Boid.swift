@@ -21,6 +21,7 @@ class Boid: SKSpriteNode {
     var maximumFlockSpeed: CGFloat = 2
     var maximumGoalSpeed: CGFloat = 4
     var currentSpeed: CGFloat = 2
+    var fearThreshhold: CGFloat = 100
     var velocity = CGPoint.zero
     var behaviors = [Behavior]()
     let momentum: CGFloat = 6
@@ -54,8 +55,8 @@ class Boid: SKSpriteNode {
         addChild(boidlabel)
 
         self.orientation = orientation
-        size = CGSize(width: boidlabel.fontSize, height: boidlabel.fontSize)
-        behaviors = [Cohesion(intensity: 0.01), Separation(intensity: 0.01), Alignment(intensity: 0.3), Bound(intensity:0.4)]
+        size = CGSize(width: fontSize, height: fontSize)
+        behaviors = [Cohesion(intensity: 0.01), Separation(intensity: 0.1), Alignment(intensity: 0.3), Bound(intensity:0.4)]
     }
 
     required init?(coder aDecoder: NSCoder) {
@@ -78,7 +79,7 @@ class Boid: SKSpriteNode {
 
     func evade(_ point:CGPoint) {
         // Remove any existing Bound and Seek behaviors
-        behaviors = behaviors.filter() { !($0 is Seek) && !($0 is Bound) }
+        behaviors = behaviors.filter() { !($0 is Seek)}
         
         // If there is an evade behavior in place, reuse it
         for thisBehavior in behaviors {
@@ -87,7 +88,7 @@ class Boid: SKSpriteNode {
                 return
             }
         }
-        behaviors.append(Evade(intensity: 0.2, point: point))
+        behaviors.append(Evade(intensity: 0.05, point: point))
     }
 
     func evaluateNeighborhood(forFlock flock: [Boid]) {

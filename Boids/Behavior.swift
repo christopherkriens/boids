@@ -72,8 +72,9 @@ final class Separation: Behavior {
         for flockBoid in flock {
             guard flockBoid != boid else { continue }
             
-            if boid.position.distance(from: flockBoid.position) < boid.radius {
-                velocity -= (flockBoid.position - boid.position)
+            if boid.position.distance(from: flockBoid.position) < boid.radius*2 {
+                let awayVector = (flockBoid.position - boid.position)
+                velocity -= awayVector * (1/boid.position.distance(from: flockBoid.position))
             }
         }
     }
@@ -146,7 +147,8 @@ final class Seek: Behavior {
     }
     
     func apply(boid:Boid) {
-        let goalThreshhold: CGFloat = boid.radius * 2
+        // Approximate touch size
+        let goalThreshhold: CGFloat = 44.0
         
         // Remove this behavior once the goal has been reached
         guard boid.position.outside(range: goalThreshhold, of: point) else {
@@ -175,20 +177,16 @@ final class Evade: Behavior {
     }
     
     func apply(boid:Boid) {
-        let fearThreshold: CGFloat = boid.radius * 4
-
         // Remove this behavior once the goal has been reached
-        guard boid.position.within(range: fearThreshold, of: point) else {
+        guard boid.position.within(range: boid.fearThreshhold, of: point) else {
             boid.currentSpeed = boid.maximumFlockSpeed
             boid.behaviors = boid.behaviors.filter() { $0 as? Evade !== self }
-            
-            // Restore standard Bounding behavior
-            boid.behaviors.append(Bound(intensity:0.4))
-            
             return
         }
+        velocity = boid.position - point
 
-        velocity = -(point - boid.position)
-        boid.currentSpeed = boid.maximumGoalSpeed
+        let distanceFromPoint = boid.position.distance(from: point)
+        let evadeSpeed = boid.maximumGoalSpeed * (150/distanceFromPoint)
+        boid.currentSpeed = evadeSpeed < boid.maximumFlockSpeed ? boid.maximumFlockSpeed : evadeSpeed
     }
 }

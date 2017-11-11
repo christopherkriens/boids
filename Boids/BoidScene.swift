@@ -8,7 +8,7 @@
 import SpriteKit
 
 class BoidScene: SKScene {
-    let numberOfBoids = 75
+    let numberOfBoids = 100
     private var flock = [Boid]()
     private var lastUpdateTime: TimeInterval = 0
     private var frameCount: Int = 0
@@ -23,12 +23,14 @@ class BoidScene: SKScene {
         
         for i in 0..<numberOfBoids {
             // Create a new boid object with Character, e.g. : 🐠 🐟 🐡 🦄 🐔 🚜
-            let boid = Boid(withCharacter: "🐠", fontSize: 30)
+            let boid = Boid(withCharacter: "🐠", fontSize: 26)
 
             // Position the boid at a random scene location to start
             let randomStartPositionX = round(CGFloat.random(between: 0, and: size.width))
             let randomStartPositionY = round(CGFloat.random(between: 0, and: size.height))
             boid.position = CGPoint(x: randomStartPositionX, y: randomStartPositionY)
+            
+            boid.fearThreshhold = CGFloat.random(between: boid.radius*6, and: boid.radius*8)
             
             // Assign slightly randomized speeds for variety in flock movement
             let randomFlockSpeed = CGFloat.random(between: 2, and: 3)
