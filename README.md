@@ -6,7 +6,7 @@
 
 ## Overview
 Boids is an algorithm for simulating natural group flocking behavior.  Flocking is an emergent behavior accomplished by applying a set of simple rules on autonomous agents, called "boids".  Each boid operates independently, assessing its surrounding flock and adjusting its heading based on an evaluation of a set of basic rules.
-<br /><br /><img src="http://img.shields.io/badge/License-MIT-red.svg"> <img src="http://img.shields.io/badge/Platforms-iOS-lightgrey.svg"> <img src="http://img.shields.io/badge/Swift-3.1-orange.svg">
+<br /><br /><img src="http://img.shields.io/badge/License-MIT-red.svg"> <img src="http://img.shields.io/badge/Platforms-iOS-lightgrey.svg"> <img src="https://img.shields.io/badge/Swift-4.0-orange.svg">
 
 ## Rules
 The standard flocking rules:
@@ -51,8 +51,8 @@ Because each boid needs to iterate over the entire group, this runs in quadratic
 
 
 ## Source Versioning
-* Xcode 9.0
-* iOS SDK 11.0.2
+* Xcode 9.1
+* iOS SDK 11.2
 * Swift 4
 
 ## Credit

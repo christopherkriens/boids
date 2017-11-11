@@ -15,7 +15,8 @@ class BoidScene: SKScene {
     private let neighborhoodUpdateFrequency = 31
     private let perceptionUpdateFrequency = 37
     private var touchDownOccurred = false
-    private var feedbackGenerator: UIImpactFeedbackGenerator = UIImpactFeedbackGenerator(style: .medium)
+    private var lightFeedbackGenerator: UIImpactFeedbackGenerator = UIImpactFeedbackGenerator(style: .light)
+    private var heavyFeedbackGenerator: UIImpactFeedbackGenerator = UIImpactFeedbackGenerator(style: .heavy)
 
     override func didMove(to view: SKView) {
         backgroundColor = SKColor.black
@@ -63,6 +64,14 @@ class BoidScene: SKScene {
         }
     }
 
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        // Prepare the Taptic Engine to reduce latency
+        lightFeedbackGenerator.prepare()
+        heavyFeedbackGenerator.prepare()
+        
+        lightFeedbackGenerator.impactOccurred()
+    }
+    
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
         touchDownOccurred = false
     }
@@ -83,9 +92,6 @@ class BoidScene: SKScene {
             let normalTouchRange: ClosedRange<CGFloat> = 0.0...0.7
             let forceTouchRange: ClosedRange<CGFloat> = 0.7...CGFloat.greatestFiniteMagnitude
             
-            // Prepare the Taptic Engine to reduce latency
-            feedbackGenerator.prepare()
-            
             // Use light touches as Seek and heavy touches as Evade
             switch touch.force {
             case normalTouchRange:
@@ -93,6 +99,7 @@ class BoidScene: SKScene {
                 for boid in flock {
                     boid.seek(touchLocation)
                 }
+
             case forceTouchRange:
                 for boid in flock {
                     boid.evade(touchLocation)
@@ -100,7 +107,7 @@ class BoidScene: SKScene {
 
                 // Provide haptic feedback when switching to Evade
                 if !touchDownOccurred {
-                    feedbackGenerator.impactOccurred()
+                    heavyFeedbackGenerator.impactOccurred()
                 }
                 touchDownOccurred = true
             default:
