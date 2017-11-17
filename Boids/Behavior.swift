@@ -65,10 +65,10 @@ final class Cohesion: Behavior {
 final class Separation: Behavior {
     var velocity: CGPoint = CGPoint.zero
     var intensity: CGFloat = 0.0
-    
+
     func apply(toBoid boid:Boid, inFlock flock:[Boid]) {
         velocity = CGPoint.zero
-        
+
         for flockBoid in flock {
             guard flockBoid != boid else { continue }
             
@@ -87,7 +87,7 @@ final class Separation: Behavior {
 final class Alignment: Behavior {
     var velocity: CGPoint = CGPoint.zero
     var intensity: CGFloat = 0.0
-    
+
     func apply(toBoid boid:Boid, withAlignment alignment: CGPoint) {
         velocity = (alignment - boid.velocity)
     }
@@ -151,7 +151,7 @@ final class Seek: Behavior {
         let goalThreshhold: CGFloat = 44.0
         
         // Remove this behavior once the goal has been reached
-        guard boid.position.outside(range: goalThreshhold, of: point) else {
+        guard boid.position.outside(goalThreshhold, of: point) else {
             boid.currentSpeed = boid.maximumFlockSpeed
             boid.behaviors = boid.behaviors.filter() { $0 as? Seek !== self }
             return
@@ -178,15 +178,16 @@ final class Evade: Behavior {
     
     func apply(boid:Boid) {
         // Remove this behavior once the goal has been reached
-        guard boid.position.within(range: boid.fearThreshhold, of: point) else {
+        guard boid.position.within(boid.fearThreshold, of: point) else {
             boid.currentSpeed = boid.maximumFlockSpeed
             boid.behaviors = boid.behaviors.filter() { $0 as? Evade !== self }
             return
         }
         velocity = boid.position - point
 
-        let distanceFromPoint = boid.position.distance(from: point)
-        let evadeSpeed = boid.maximumGoalSpeed * (150/distanceFromPoint)
+        let multiplier: CGFloat = 150
+        let distanceFromTouch = boid.position.distance(from: point)
+        let evadeSpeed = boid.maximumGoalSpeed * (multiplier/distanceFromTouch)
         boid.currentSpeed = evadeSpeed < boid.maximumFlockSpeed ? boid.maximumFlockSpeed : evadeSpeed
     }
 }

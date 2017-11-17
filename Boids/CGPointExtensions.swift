@@ -1,13 +1,13 @@
 import CoreGraphics
 
 extension CGPoint {
-    public func within(range: CGFloat, of point: CGPoint) -> Bool {
+    public func within(_ range: CGFloat, of point: CGPoint) -> Bool {
         let difference = self - point
         return fabs(difference.x) < range && fabs(difference.y) < range
     }
     
-    public func outside(range: CGFloat, of point: CGPoint) -> Bool {
-        return !(within(range: range, of: point))
+    public func outside(_ range: CGFloat, of point: CGPoint) -> Bool {
+        return !(within(range, of: point))
     }
     
     public var length: CGFloat {

@@ -15,8 +15,8 @@ class BoidScene: SKScene {
     private let neighborhoodUpdateFrequency = 31
     private let perceptionUpdateFrequency = 37
     private var touchDownOccurred = false
-    private var lightFeedbackGenerator: UIImpactFeedbackGenerator = UIImpactFeedbackGenerator(style: .light)
-    private var heavyFeedbackGenerator: UIImpactFeedbackGenerator = UIImpactFeedbackGenerator(style: .heavy)
+    private var lightFeedbackGenerator = UIImpactFeedbackGenerator(style: .light)
+    private var heavyFeedbackGenerator = UIImpactFeedbackGenerator(style: .heavy)
 
     override func didMove(to view: SKView) {
         backgroundColor = SKColor.black
@@ -30,7 +30,8 @@ class BoidScene: SKScene {
             let randomStartPositionY = round(CGFloat.random(between: 0, and: size.height))
             boid.position = CGPoint(x: randomStartPositionX, y: randomStartPositionY)
             
-            boid.fearThreshhold = CGFloat.random(between: boid.radius*6, and: boid.radius*8)
+            // Varying fear thresholds prevents "boid walls" during evade
+            boid.fearThreshold = CGFloat.random(between: boid.radius*6, and: boid.radius*8)
             
             // Assign slightly randomized speeds for variety in flock movement
             let randomFlockSpeed = CGFloat.random(between: 2, and: 3)
@@ -70,6 +71,8 @@ class BoidScene: SKScene {
         // Prepare the Taptic Engine to reduce latency
         lightFeedbackGenerator.prepare()
         heavyFeedbackGenerator.prepare()
+        
+        touchesMoved(touches, with: event)
         
         lightFeedbackGenerator.impactOccurred()
     }

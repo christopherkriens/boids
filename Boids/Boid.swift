@@ -21,7 +21,7 @@ class Boid: SKSpriteNode {
     var maximumFlockSpeed: CGFloat = 2
     var maximumGoalSpeed: CGFloat = 4
     var currentSpeed: CGFloat = 2
-    var fearThreshhold: CGFloat = 100
+    var fearThreshold: CGFloat = 100
     var velocity = CGPoint.zero
     var behaviors = [Behavior]()
     let momentum: CGFloat = 6
