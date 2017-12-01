@@ -4,7 +4,6 @@
 //
 //  Created by Christopher Kriens on 4/4/17.
 
-
 import SpriteKit
 
 class BoidScene: SKScene {
@@ -20,7 +19,7 @@ class BoidScene: SKScene {
 
     override func didMove(to view: SKView) {
         backgroundColor = SKColor.black
-        
+
         for i in 0..<numberOfBoids {
             // Create a new boid object with Character, e.g. : 🐠 🐟 🐡 🦄 🐔 🚜
             let boid = Boid(withCharacter: "🐠", fontSize: 26)
@@ -29,18 +28,18 @@ class BoidScene: SKScene {
             let randomStartPositionX = round(CGFloat.random(between: 0, and: size.width))
             let randomStartPositionY = round(CGFloat.random(between: 0, and: size.height))
             boid.position = CGPoint(x: randomStartPositionX, y: randomStartPositionY)
-            
+
             // Varying fear thresholds prevents "boid walls" during evade
             boid.fearThreshold = CGFloat.random(between: boid.radius*6, and: boid.radius*8)
-            
+
             // Assign slightly randomized speeds for variety in flock movement
             let randomFlockSpeed = CGFloat.random(between: 2, and: 3)
             let randomGoalSpeed = CGFloat.random(between: 5, and: 6)
             boid.maximumFlockSpeed = randomFlockSpeed
             boid.maximumGoalSpeed = randomGoalSpeed
-            
+
             boid.name = "boid-\(i)"
-            
+
             flock.append(boid)
             addChild(boid)
         }
@@ -57,12 +56,12 @@ class BoidScene: SKScene {
             if frameCount % neighborhoodUpdateFrequency == 0 {
                 boid.evaluateNeighborhood(forFlock: flock)
             }
-            
+
             // The boid should recalculate its perception every so often
             if frameCount % perceptionUpdateFrequency == 0 {
                 boid.updatePerception()
             }
-            
+
             boid.updateBoid(inFlock: flock, deltaTime: deltaTime)
         }
     }
@@ -71,16 +70,16 @@ class BoidScene: SKScene {
         // Prepare the Taptic Engine to reduce latency
         lightFeedbackGenerator.prepare()
         heavyFeedbackGenerator.prepare()
-        
+
         touchesMoved(touches, with: event)
-        
+
         lightFeedbackGenerator.impactOccurred()
     }
-    
+
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
         touchDownOccurred = false
     }
-    
+
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
         // If Force Touch isn't available, just use Seek
         guard view?.traitCollection.forceTouchCapability == .available else {
@@ -91,12 +90,12 @@ class BoidScene: SKScene {
             }
             return
         }
-        
+
         if let touch = touches.first {
             let touchLocation = touch.location(in: self)
             let normalTouchRange: ClosedRange<CGFloat> = 0.0...0.7
             let forceTouchRange: ClosedRange<CGFloat> = 0.7...CGFloat.greatestFiniteMagnitude
-            
+
             // Use light touches as Seek and heavy touches as Evade
             switch touch.force {
             case normalTouchRange:

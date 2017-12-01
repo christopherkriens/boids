@@ -29,26 +29,25 @@ class Boid: SKSpriteNode {
 
     fileprivate var sceneFrame = CGRect.zero
     fileprivate var neighborhood: [Boid] = [Boid]()
-    fileprivate var orientation:BoidOrientation = .west
+    fileprivate var orientation: BoidOrientation = .west
     fileprivate var perceivedCenter = CGPoint.zero
     fileprivate var perceivedDirection = CGPoint.zero
 
     lazy var radius: CGFloat = { return min(size.width, size.height) }()
-    lazy var neighborhoodSize:CGFloat = { return radius * 4 }()
-
+    lazy var neighborhoodSize: CGFloat = { return radius * 4 }()
 
     // MARK: - Initialization
 
     public init(withCharacter character: Character = "❌", fontSize: CGFloat = 36, orientation: BoidOrientation = .west) {
-    
+
         super.init(texture: nil, color: SKColor.clear, size: CGSize())
-        
+
         // Configure SpriteNode properties
         anchorPoint = CGPoint(x: 0.5, y: 0.5)
         position = CGPoint.zero
         zPosition = 2
         name = "boid"
-        
+
         // Create the label and set the character and size
         let boidlabel = SKLabelNode(text: String(character))
         boidlabel.fontSize = fontSize
@@ -62,11 +61,10 @@ class Boid: SKSpriteNode {
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
-    
+
     // MARK: - Updates
 
-    func seek(_ point:CGPoint) {
+    func seek(_ point: CGPoint) {
         // If there is a seek behavior in place, reuse it
         for thisBehavior in behaviors {
             if let seek = thisBehavior as? Seek {
@@ -77,10 +75,10 @@ class Boid: SKSpriteNode {
         behaviors.append(Seek(intensity: 0.03, point: point))
     }
 
-    func evade(_ point:CGPoint) {
+    func evade(_ point: CGPoint) {
         // Remove any existing Bound and Seek behaviors
-        behaviors = behaviors.filter() { !($0 is Seek)}
-        
+        behaviors = behaviors.filter { !($0 is Seek)}
+
         // If there is an evade behavior in place, reuse it
         for thisBehavior in behaviors {
             if let evade = thisBehavior as? Evade {
@@ -132,33 +130,32 @@ class Boid: SKSpriteNode {
 
         // Sum the velocities supplied by each of the behaviors
         velocity += behaviors.reduce(velocity) { $0 + $1.scaledVelocity } / momentum
-        
+
         // Limit the maximum velocity per update
         applySpeedLimit()
-        
+
         // Stay rotated toward the direction of travel
         rotate()
-        
+
         // Update the position on screen
         position += velocity * (CGFloat(deltaTime) * 60)
     }
 }
 
-
 // MARK: - Private
 fileprivate extension Boid {
-    
+
     /**
      Applies the boid's current speed limit to its velocity
     */
     func applySpeedLimit() {
         let vector = velocity.length
-        if (vector > currentSpeed) {
+        if vector > currentSpeed {
             let unitVector = velocity / vector
             velocity = unitVector * currentSpeed
         }
     }
-    
+
     /**
      Examines an array of boids and returns a subarray with boids that are considered neighbors.
      This function is O(n²) where n = flock size and should be used sparingly for large flocks.
@@ -166,19 +163,19 @@ fileprivate extension Boid {
         - inFlock: The array of boids for which potential neighbors can be found.
      - returns: A subarray with boids that are considered neighbors.  Current boid will never be included.
      */
-    func findNeighbors(inFlock flock:[Boid]) -> [Boid] {
+    func findNeighbors(inFlock flock: [Boid]) -> [Boid] {
         var neighbors = [Boid]()
-        
+
         for flockBoid in flock {
             guard flockBoid != self else { continue }
             if self.neighbors(boid: flockBoid) {
                 neighbors.append(flockBoid)
             }
         }
-        
+
         // Boid is on its own with no neighbors, fall back to the flock
         guard neighbors.count > 0 else {
-            return flock.filter() { $0 !== self }
+            return flock.filter { $0 !== self }
         }
         return neighbors
     }
@@ -194,7 +191,7 @@ fileprivate extension Boid {
         if position.distance(from: boid.position) < neighborhoodSize {
             let lowerBound = boid.velocity.pointByRotatingAround(boid.position, byDegrees: -visionAngle/2)
             let upperBound = boid.velocity.pointByRotatingAround(boid.position, byDegrees: visionAngle/2)
-           
+
             if (lowerBound * boid.velocity) * (lowerBound * upperBound) >= 0 && (upperBound * boid.velocity) * (upperBound * lowerBound) >= 0 {
                 return true
             }
@@ -209,8 +206,8 @@ fileprivate extension Boid {
      - returns: `Boid?` - The closest boid.  Can be nil.
      */
     func nearestNeighbor(flock: [Boid]) -> Boid? {
-        
-        let flock = flock.filter() { $0 !== self }
+
+        let flock = flock.filter { $0 !== self }
         guard var nearestBoid = flock.first else {
             return nil
         }
@@ -222,7 +219,7 @@ fileprivate extension Boid {
         }
         return nearestBoid
     }
-    
+
     /**
      Rotates the sprite node so it's oriented in the direction of travel.
      - parameters:

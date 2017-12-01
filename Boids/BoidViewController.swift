@@ -11,12 +11,12 @@ class BoidViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        if let view = view as! SKView? {
+
+        if let view = view as? SKView {
             // Create a BoidScene
             let scene = BoidScene(size: view.bounds.size)
             scene.scaleMode = .aspectFit
-                
+
             // Present the Scene
             view.presentScene(scene)
 
@@ -26,7 +26,7 @@ class BoidViewController: UIViewController {
             view.showsNodeCount = false
         }
     }
-    
+
     override var shouldAutorotate: Bool {
         return true
     }

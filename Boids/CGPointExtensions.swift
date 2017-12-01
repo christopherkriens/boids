@@ -5,27 +5,27 @@ extension CGPoint {
         let difference = self - point
         return fabs(difference.x) < range && fabs(difference.y) < range
     }
-    
+
     public func outside(_ range: CGFloat, of point: CGPoint) -> Bool {
         return !(within(range, of: point))
     }
-    
+
     public var length: CGFloat {
         return sqrt(squareLength)
     }
-    
+
     public var squareLength: CGFloat {
         return x * x + y * y
     }
-    
+
     public var unit: CGPoint {
         return self * (1.0 / length)
     }
-    
+
     public var phase: CGFloat {
         return atan2(y, x)
     }
-    
+
     public func pointByRotatingAround(_ origin: CGPoint, byDegrees degrees: CGFloat) -> CGPoint {
         let dx = self.x - origin.x
         let dy = self.y - origin.y
@@ -36,11 +36,11 @@ extension CGPoint {
         let y = origin.y + radius * sin(newAzimuth)
         return CGPoint(x: x, y: y)
     }
-    
+
     public func distance(from point: CGPoint) -> CGFloat {
         return (self - point).length
     }
-    
+
     public func squareDistance(from point: CGPoint) -> CGFloat {
         return (self - point).squareLength
     }
@@ -85,17 +85,17 @@ public func / (left: CGPoint, right: CGFloat) -> CGPoint {
 }
 
 public func += (left: inout CGPoint, right: CGPoint) {
-    left = left + right
+    left += right
 }
 
 public func -= (left: inout CGPoint, right: CGPoint) {
-    left = left - right
+    left -= right
 }
 
 public func *= (left: inout CGPoint, right: CGFloat) {
-    left = left * right
+    left *= right
 }
 
 public func /= (left: inout CGPoint, right: CGFloat) {
-    left = left / right
+    left /= right
 }
