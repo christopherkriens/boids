@@ -85,17 +85,17 @@ public func / (left: CGPoint, right: CGFloat) -> CGPoint {
 }
 
 public func += (left: inout CGPoint, right: CGPoint) {
-    left += right
+    left = left + right
 }
 
 public func -= (left: inout CGPoint, right: CGPoint) {
-    left -= right
+    left = left - right
 }
 
 public func *= (left: inout CGPoint, right: CGFloat) {
-    left *= right
+    left = left * right
 }
 
 public func /= (left: inout CGPoint, right: CGFloat) {
-    left /= right
+    left = left / right
 }
