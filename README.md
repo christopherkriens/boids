@@ -47,11 +47,11 @@ self.behaviors = [Cohesion(intensity: 0.1), Separation(intensity: 0.1), Alignmen
 ```
 
 ## Performance
-Because each boid needs to iterate over the entire group, this runs in quadratic time _O(n²)_.  As a benchmark, the iPhone 6S can maintain 60fps when simulating up to 100 boids.
+Because each boid needs to iterate over the entire group, this runs in quadratic time _O(n²)_.  As a benchmark, the iPhone X can maintain 60fps when simulating up to 150 boids.
 
 
 ## Source Versioning
-* Xcode 9.1
+* Xcode 9.2
 * iOS SDK 11.2
 * Swift 4
 
