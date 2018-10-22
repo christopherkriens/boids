@@ -3,7 +3,7 @@ import CoreGraphics
 extension CGPoint {
     public func within(_ range: CGFloat, of point: CGPoint) -> Bool {
         let difference = self - point
-        return fabs(difference.x) < range && fabs(difference.y) < range
+        return abs(difference.x) < range && abs(difference.y) < range
     }
 
     public func outside(_ range: CGFloat, of point: CGPoint) -> Bool {

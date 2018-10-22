@@ -65,28 +65,27 @@ class Boid: SKSpriteNode {
     // MARK: - Updates
 
     func seek(_ point: CGPoint) {
+        // Remove existing Bound and Seek behaviors, as they conflict
+        behaviors = behaviors.filter { !($0 is Seek) }
+
         // If there is a seek behavior in place, reuse it
-        for thisBehavior in behaviors {
-            if let seek = thisBehavior as? Seek {
-                seek.point = point
-                return
-            }
+        if let seek = behaviors.compactMap({ $0 as? Seek }).first {
+            seek.point = point
+        } else {
+            behaviors.append(Seek(intensity: 0.03, point: point))
         }
-        behaviors.append(Seek(intensity: 0.03, point: point))
     }
 
     func evade(_ point: CGPoint) {
-        // Remove any existing Bound and Seek behaviors
-        behaviors = behaviors.filter { !($0 is Seek)}
+        // Remove existing Bound and Seek behaviors, as they conflict
+        behaviors = behaviors.filter { !($0 is Seek) }
 
         // If there is an evade behavior in place, reuse it
-        for thisBehavior in behaviors {
-            if let evade = thisBehavior as? Evade {
-                evade.point = point
-                return
-            }
+        if let evade = behaviors.compactMap({ $0 as? Evade }).first {
+            evade.point = point
+        } else {
+            behaviors.append(Evade(intensity: 0.05, point: point))
         }
-        behaviors.append(Evade(intensity: 0.05, point: point))
     }
 
     func evaluateNeighborhood(forFlock flock: [Boid]) {

@@ -13,7 +13,8 @@ class BoidScene: SKScene {
     private var frameCount: Int = 0
     private let neighborhoodUpdateFrequency = 31
     private let perceptionUpdateFrequency = 37
-    private var touchDownOccurred = false
+    private var lightTouchOccurred = false
+    private var forceTouchOccurred = false
     private var lightFeedbackGenerator = UIImpactFeedbackGenerator(style: .light)
     private var heavyFeedbackGenerator = UIImpactFeedbackGenerator(style: .heavy)
 
@@ -25,16 +26,19 @@ class BoidScene: SKScene {
             let boid = Boid(withCharacter: "🐠", fontSize: 26)
 
             // Position the boid at a random scene location to start
-            let randomStartPositionX = round(CGFloat.random(between: 0, and: size.width))
-            let randomStartPositionY = round(CGFloat.random(between: 0, and: size.height))
+
+            let randomStartPositionX = round(CGFloat.random(in: 1...size.width))
+            let randomStartPositionY = round(CGFloat.random(in: 1...size.height))
             boid.position = CGPoint(x: randomStartPositionX, y: randomStartPositionY)
 
             // Varying fear thresholds prevents "boid walls" during evade
-            boid.fearThreshold = CGFloat.random(between: boid.radius*6, and: boid.radius*8)
+
+            boid.fearThreshold = CGFloat.random(in: boid.radius*6...boid.radius*8)
 
             // Assign slightly randomized speeds for variety in flock movement
-            let randomFlockSpeed = CGFloat.random(between: 2, and: 3)
-            let randomGoalSpeed = CGFloat.random(between: 5, and: 6)
+
+            let randomFlockSpeed = CGFloat.random(in: 2...3)
+            let randomGoalSpeed = CGFloat.random(in: 5...6)
             boid.maximumFlockSpeed = randomFlockSpeed
             boid.maximumGoalSpeed = randomGoalSpeed
 
@@ -77,7 +81,8 @@ class BoidScene: SKScene {
     }
 
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
-        touchDownOccurred = false
+        lightTouchOccurred = false
+        forceTouchOccurred = false
     }
 
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -94,15 +99,20 @@ class BoidScene: SKScene {
         if let touch = touches.first {
             let touchLocation = touch.location(in: self)
             let normalTouchRange: ClosedRange<CGFloat> = 0.0...0.7
-            let forceTouchRange: ClosedRange<CGFloat> = 0.7...CGFloat.greatestFiniteMagnitude
+            let forceTouchRange: PartialRangeFrom<CGFloat> = normalTouchRange.upperBound...
 
             // Use light touches as Seek and heavy touches as Evade
             switch touch.force {
             case normalTouchRange:
-                guard !touchDownOccurred else { return }
+                //guard !forceTouchOccurred else { return }
                 for boid in flock {
                     boid.seek(touchLocation)
                 }
+                if !lightTouchOccurred {
+                    lightFeedbackGenerator.impactOccurred()
+                }
+                lightTouchOccurred = true
+                forceTouchOccurred = false
 
             case forceTouchRange:
                 for boid in flock {
@@ -110,10 +120,12 @@ class BoidScene: SKScene {
                 }
 
                 // Provide haptic feedback when switching to Evade
-                if !touchDownOccurred {
+                if !forceTouchOccurred {
                     heavyFeedbackGenerator.impactOccurred()
                 }
-                touchDownOccurred = true
+                forceTouchOccurred = true
+                lightTouchOccurred = false
+
             default:
                 break
             }
