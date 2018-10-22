@@ -51,9 +51,9 @@ Because each boid needs to iterate over the entire group, this runs in quadratic
 
 
 ## Source Versioning
-* Xcode 9.2
-* iOS SDK 11.2
-* Swift 4
+* Xcode 10
+* iOS SDK 12
+* Swift 4.2
 
 ## Credit
 
