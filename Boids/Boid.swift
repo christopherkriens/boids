@@ -26,7 +26,7 @@ class Boid: SKSpriteNode {
     var behaviors = [Behavior]()
     let momentum: CGFloat = 6
     let visionAngle: CGFloat = 180
-
+    
     fileprivate var sceneFrame = CGRect.zero
     fileprivate var neighborhood: [Boid] = [Boid]()
     fileprivate var orientation: BoidOrientation = .west
@@ -47,15 +47,18 @@ class Boid: SKSpriteNode {
         position = CGPoint.zero
         zPosition = 2
         name = "boid"
+        size = CGSize(width: fontSize, height: fontSize)
 
         // Create the label and set the character and size
         let boidlabel = SKLabelNode(text: String(character))
         boidlabel.fontSize = fontSize
+        boidlabel.verticalAlignmentMode = .center
+        boidlabel.horizontalAlignmentMode = .center
+        boidlabel.position = CGPoint(x: boidlabel.frame.midX, y: boidlabel.frame.midY)
         addChild(boidlabel)
 
         self.orientation = orientation
-        size = CGSize(width: fontSize, height: fontSize)
-        behaviors = [Cohesion(intensity: 0.01), Separation(intensity: 0.1), Alignment(intensity: 0.3), Bound(intensity:0.4)]
+        behaviors = [Cohesion(intensity: 0.02), Separation(intensity: 0.1), Alignment(intensity: 0.3), Bound(intensity:0.4)]
     }
 
     required init?(coder aDecoder: NSCoder) {
@@ -100,6 +103,7 @@ class Boid: SKSpriteNode {
 
     func updateBoid(inFlock flock: [Boid], deltaTime: TimeInterval) {
         // Apply each of the boid's behaviors
+
         for behavior in behaviors {
             if let cohension = behavior as? Cohesion {
                 cohension.apply(toBoid: self, withCenterOfMass:perceivedCenter)
@@ -132,7 +136,7 @@ class Boid: SKSpriteNode {
 
         // Limit the maximum velocity per update
         applySpeedLimit()
-
+        
         // Stay rotated toward the direction of travel
         rotate()
 
@@ -142,7 +146,7 @@ class Boid: SKSpriteNode {
 }
 
 // MARK: - Private
-fileprivate extension Boid {
+private extension Boid {
 
     /**
      Applies the boid's current speed limit to its velocity
@@ -167,7 +171,7 @@ fileprivate extension Boid {
 
         for flockBoid in flock {
             guard flockBoid != self else { continue }
-            if self.neighbors(boid: flockBoid) {
+            if self.isNeighbor(to: flockBoid) {
                 neighbors.append(flockBoid)
             }
         }
@@ -186,7 +190,7 @@ fileprivate extension Boid {
         - boid: A boid to test against
      - returns: `Bool` - Whether or not this boid is a neighbor to the provided boid.
      */
-    func neighbors(boid: Boid) -> Bool {
+    func isNeighbor(to boid: Boid) -> Bool {
         if position.distance(from: boid.position) < neighborhoodSize {
             let lowerBound = boid.velocity.pointByRotatingAround(boid.position, byDegrees: -visionAngle/2)
             let upperBound = boid.velocity.pointByRotatingAround(boid.position, byDegrees: visionAngle/2)

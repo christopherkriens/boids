@@ -22,7 +22,7 @@ class BoidViewController: UIViewController {
 
             // Configure a few options
             view.ignoresSiblingOrder = true
-            view.showsFPS = true
+            //view.showsFPS = true
             view.showsNodeCount = false
         }
     }

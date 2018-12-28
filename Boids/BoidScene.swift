@@ -7,36 +7,32 @@
 import SpriteKit
 
 class BoidScene: SKScene {
-    let numberOfBoids = 100
+    let numberOfBoids = 350
     private var flock = [Boid]()
     private var lastUpdateTime: TimeInterval = 0
     private var frameCount: Int = 0
-    private let neighborhoodUpdateFrequency = 31
-    private let perceptionUpdateFrequency = 37
+    private let updateFrequency = 31
     private var lightTouchOccurred = false
     private var forceTouchOccurred = false
     private var lightFeedbackGenerator = UIImpactFeedbackGenerator(style: .light)
     private var heavyFeedbackGenerator = UIImpactFeedbackGenerator(style: .heavy)
 
     override func didMove(to view: SKView) {
-        backgroundColor = SKColor.black
+        backgroundColor = SKColor(displayP3Red: 0, green: 0.1, blue: 0.2, alpha: 1)
 
         for i in 0..<numberOfBoids {
             // Create a new boid object with Character, e.g. : 🐠 🐟 🐡 🦄 🐔 🚜
-            let boid = Boid(withCharacter: "🐠", fontSize: 26)
+            let boid = Boid(withCharacter: "🐟", fontSize: 26)
 
             // Position the boid at a random scene location to start
-
-            let randomStartPositionX = round(CGFloat.random(in: 1...size.width))
-            let randomStartPositionY = round(CGFloat.random(in: 1...size.height))
+            let randomStartPositionX = CGFloat.random(in: 1...size.width)
+            let randomStartPositionY = CGFloat.random(in: 1...size.height)
             boid.position = CGPoint(x: randomStartPositionX, y: randomStartPositionY)
 
             // Varying fear thresholds prevents "boid walls" during evade
-
             boid.fearThreshold = CGFloat.random(in: boid.radius*6...boid.radius*8)
 
             // Assign slightly randomized speeds for variety in flock movement
-
             let randomFlockSpeed = CGFloat.random(in: 2...3)
             let randomGoalSpeed = CGFloat.random(in: 5...6)
             boid.maximumFlockSpeed = randomFlockSpeed
@@ -56,17 +52,20 @@ class BoidScene: SKScene {
         frameCount += 1
 
         for boid in flock {
-            // The boid should reevaluate its neighborhood every so often
-            if frameCount % neighborhoodUpdateFrequency == 0 {
-                boid.evaluateNeighborhood(forFlock: flock)
-            }
+            // Each boid should reevaluate its neighborhood and perception every so often
+            if frameCount % updateFrequency == 0 {
+                DispatchQueue.global(qos: .background).async {
+                    let startTime = Date()
+                    boid.evaluateNeighborhood(forFlock: self.flock)
+                    boid.updatePerception()
 
-            // The boid should recalculate its perception every so often
-            if frameCount % perceptionUpdateFrequency == 0 {
-                boid.updatePerception()
+                    DispatchQueue.main.async {
+                        boid.updateBoid(inFlock: self.flock, deltaTime: -startTime.timeIntervalSinceNow)
+                    }
+                }
+            } else {
+                boid.updateBoid(inFlock: flock, deltaTime: deltaTime)
             }
-
-            boid.updateBoid(inFlock: flock, deltaTime: deltaTime)
         }
     }
 
@@ -101,12 +100,11 @@ class BoidScene: SKScene {
             let normalTouchRange: ClosedRange<CGFloat> = 0.0...0.7
             let forceTouchRange: PartialRangeFrom<CGFloat> = normalTouchRange.upperBound...
 
-            // Use light touches as Seek and heavy touches as Evade
             switch touch.force {
             case normalTouchRange:
-                //guard !forceTouchOccurred else { return }
+                guard !forceTouchOccurred else { return }
                 for boid in flock {
-                    boid.seek(touchLocation)
+                    boid.evade(touchLocation)
                 }
                 if !lightTouchOccurred {
                     lightFeedbackGenerator.impactOccurred()
@@ -116,10 +114,9 @@ class BoidScene: SKScene {
 
             case forceTouchRange:
                 for boid in flock {
-                    boid.evade(touchLocation)
+                    boid.seek(touchLocation)
                 }
-
-                // Provide haptic feedback when switching to Evade
+                // Provide haptic feedback when switching to Seek
                 if !forceTouchOccurred {
                     heavyFeedbackGenerator.impactOccurred()
                 }
