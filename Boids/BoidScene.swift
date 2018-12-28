@@ -22,7 +22,7 @@ class BoidScene: SKScene {
 
         for i in 0..<numberOfBoids {
             // Create a new boid object with Character, e.g. : 🐠 🐟 🐡 🦄 🐔 🚜
-            let boid = Boid(withCharacter: "🐟", fontSize: 26)
+            let boid = Boid(withCharacter: "🐟", fontSize: 28)
 
             // Position the boid at a random scene location to start
             let randomStartPositionX = CGFloat.random(in: 1...size.width)
@@ -30,7 +30,7 @@ class BoidScene: SKScene {
             boid.position = CGPoint(x: randomStartPositionX, y: randomStartPositionY)
 
             // Varying fear thresholds prevents "boid walls" during evade
-            boid.fearThreshold = CGFloat.random(in: boid.radius*6...boid.radius*8)
+            boid.fearThreshold = CGFloat.random(in: boid.radius*4...boid.radius*6)
 
             // Assign slightly randomized speeds for variety in flock movement
             let randomFlockSpeed = CGFloat.random(in: 2...3)
@@ -97,7 +97,7 @@ class BoidScene: SKScene {
 
         if let touch = touches.first {
             let touchLocation = touch.location(in: self)
-            let normalTouchRange: ClosedRange<CGFloat> = 0.0...0.7
+            let normalTouchRange: ClosedRange<CGFloat> = 0.0...0.9
             let forceTouchRange: PartialRangeFrom<CGFloat> = normalTouchRange.upperBound...
 
             switch touch.force {
