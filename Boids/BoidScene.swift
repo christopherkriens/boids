@@ -7,7 +7,7 @@
 import SpriteKit
 
 class BoidScene: SKScene {
-    let numberOfBoids = 350
+    let numberOfBoids = 300
     private var flock = [Boid]()
     private var lastUpdateTime: TimeInterval = 0
     private var frameCount: Int = 0
